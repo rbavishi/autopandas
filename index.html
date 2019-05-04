@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AutoPandas</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/simplex/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handsontable@7.0.2/dist/handsontable.full.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@7.0.2/dist/handsontable.full.min.css">
+    <link type="text/css" rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/prism.css">
+    <script src="/js/lib/prism.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.4/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <style>
+        body {
+            margin: 5%;
+        }
+
+        .pycode {
+          border: 1px solid black;
+            width: 90%;
+        }
+
+        .container-two-column{
+            display: flex;
+        }
+
+        .autopandas-user-interaction {
+            width: 50%;
+        }
+        .autopandas-inputs {
+        }
+
+        .autopandas-output {
+        }
+
+        .autopandas-results {
+            position: relative;
+            width: 50%;
+            display: none;
+        }
+
+        .interaction-error {
+            position: fixed;
+            bottom: 5px;
+            left:2%;
+            width: 96%;
+        }
+
+        .divider {
+            width: 1px;
+            margin: 0 1%;
+            background: #E2E2E2;
+            display: none;
+        }
+
+        .noselect {
+          -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+             -khtml-user-select: none; /* Konqueror HTML */
+               -moz-user-select: none; /* Firefox */
+                -ms-user-select: none; /* Internet Explorer/Edge */
+                    user-select: none; /* Non-prefixed version, currently
+                                          supported by Chrome and Opera */
+        }
+
+        pre[class*="language-"]:before,
+        pre[class*="language-"]:after {
+            display: none;
+        }
+
+        .copybtn {
+            padding: 2px 6px;
+            position: absolute;
+            top: 4px;
+            right: 4px;
+        }
+
+        .copybtn:focus {
+            box-shadow: none;
+        }
+
+        .far:hover{
+          color: #00adff;
+        }
+    </style>
+</head>
+
+<body>
+<div id="div-autopandas-logo">
+    <img src="/imgs/autopandas_logo.png" alt="AutoPandas" width="50%">
+</div>
+
+<div id="alerts" class="interaction-error"></div>
+
+<div id="autopandas-default-user-input" style="display: none">
+    <div>
+        <h3 id="caption">Caption</h3>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a id="a-iopreview" class="nav-link" data-toggle="tab" href="#iopreview">Preview</a>
+            </li>
+            <li class="nav-item">
+                <a id="a-iocode" class="nav-link active" data-toggle="tab" href="#iocode">Code</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div id="iocode" class="tab-pane fade show active">
+                <div class='pycode-container'>
+<pre class="pycode">
+pd.DataFrame(
+    {'C1': {0: 'E1', 1: 'E3'}, 'C2': {0: 'E2', 1: 'E4'}}
+)</pre>
+                </div>
+            </div>
+            <div id="iopreview" class="tab-pane io-preview fade">
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+
+<div id="autopandas-default-synthesis-result" style="display: none">
+    <pre id="result" class="copytoclipboard noselect"><code class=" language-python"></code><button type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy"><img src="https://clipboardjs.com/assets/images/clippy.svg" width="13"></button></pre>
+</div>
+
+<br><br>
+<div class="container-two-column">
+    <div class="autopandas-user-interaction">
+        <button id="synthesize-button" class='btn btn-success btn-lg'>Synthesize</button>
+        <br><br>
+
+        <div class="autopandas-inputs">
+            <h2>Input(s)</h2><hr>
+            <div id="autopandas-inputs-container">
+
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="autopandas-output">
+            <h2>Output</h2><hr>
+            <div id="autopandas-output-container">
+
+            </div>
+        </div>
+        <button type="button" class="btn btn-outline-info">
+            <span class="fas fa-cog fa-lg"></span>
+            Settings
+        </button>
+    </div>
+
+    <div id="divider" class="divider"></div>
+
+    <div class="autopandas-results">
+        <h2>Results</h2>
+        <div id="div-autopandas-result-codes">
+        </div>
+    </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/editor.js"></script>
+<script src="/js/previews.js"></script>
+<script src="/js/app.js"></script>
+<script>
+    initialize();
+</script>
+
+</body>
+</html>
