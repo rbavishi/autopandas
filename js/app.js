@@ -84,6 +84,64 @@ function add_result(code) {
     Prism.highlightAll();
 }
 
+function initialize_synthesizer() {
+    let cur_task = null;
+    let synthesize_button = $('#synthesize-button');
+    let synthesis_cancel_button = $('#synthesize-cancel-button');
+    synthesize_button.click(() => {
+        synthesize_button.hide();
+        synthesis_cancel_button.show();
+
+        let payload = create_synthesis_task();
+        let results_container = $('#div-autopandas-result-codes')[0];
+        $(results_container).empty();
+        $(results_container).append(custom_waiting_logo('Initializing'));
+
+        $('.divider').show();
+        $('.autopandas-results').show();
+        $.ajax(
+            {
+                type: "POST",
+                url: "http://127.0.0.1:5000/autopandas",
+                data: JSON.stringify(payload),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                
+                success: function (resp) {
+                    let uid = resp.uid;
+                    //  Instantiate a poller
+                    let poller = solution_poller(uid, results_container);
+
+                    let timer = window.setTimeout(poller, 2000);
+                    cur_task = {
+                        uid: uid,
+                        poller: poller,
+                        timer: timer
+                    };
+                    success_alert("Task Successfully Submitted");
+                },
+
+                error: function (resp) {
+                    warn("Something went wrong. Try again");
+                    synthesize_button.show();
+                    synthesis_cancel_button.hide();
+                    cur_task = null;
+                }
+            }
+        );
+    });
+
+    synthesis_cancel_button.click(() => {
+        if (cur_task != null) {
+            window.clearTimeout(cur_task.timer);
+            cur_task = null;
+        }
+
+        synthesis_cancel_button.hide();
+        synthesize_button.show();
+    });
+}
+
 function initialize() {
     //  Setup the output.
     let output_container = $('#autopandas-output-container')[0];
@@ -100,44 +158,5 @@ function initialize() {
 
     $('.js-tooltip').tooltip();
     initialize_results_container();
-
-    $('#synthesize-button').click(() => {
-        let results_container = $('#div-autopandas-result-codes')[0];
-        $(results_container).empty();
-        let searching_logo = custom_waiting_logo('Searching...');
-        $(results_container).append(searching_logo);
-
-        $('.divider').show();
-        $('.autopandas-results').show();
-        window.setTimeout(function () {
-            add_result("output = inps[0].some_magical_function(some_magical_arguments)");
-        }, 5000);
-
-        window.setTimeout(function () {
-            searching_logo.remove();
-        }, 10000);
-
-
-        $.ajax(
-            {
-                type: "POST",
-                url: 'http://127.0.0.1:5000/synthesis',
-                data: JSON.stringify({
-                    task: 'synthesis',
-                    inputs: ['pd.DataFrame({\'k1\': {0: \'one\', 1: \'one\', 2: \'one\', 3: \'two\', 4: \'two\', 5: \'two\', 6: \'two\'}, \'k2\': {0: 11, 1: 11, 2: 12, 3: 13, 4: 13, 5: 14, 6: 14}})'],
-                    output: 'pd.DataFrame({\'k1\': {0: \'one\', 2: \'one\', 3: \'two\', 5: \'two\'}, \'k2\': {0: 11, 2: 12, 3: 13, 5: 14}})',
-                }),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-
-                success: function (msg) {
-                    console.log(msg);
-                },
-
-                error: function (errormessage) {
-                    console.log(errormessage);
-                }
-            }
-        );
-    });
+    initialize_synthesizer();
 }
