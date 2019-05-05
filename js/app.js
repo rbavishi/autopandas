@@ -159,4 +159,5 @@ function initialize() {
     $('.js-tooltip').tooltip();
     initialize_results_container();
     initialize_synthesizer();
+    setup_examples();
 }

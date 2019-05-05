@@ -73,6 +73,12 @@
             display: none;
         }
 
+        code[class*="language-"],
+        pre[class*="language-"] {
+            word-wrap: normal;
+            white-space: pre-wrap !important;
+        }
+
         .copybtn {
             padding: 2px 6px;
             position: absolute;
@@ -131,6 +137,10 @@ pd.DataFrame(
 <br><br>
 <div class="container-two-column">
     <div class="autopandas-user-interaction">
+        <button id="example-button1" class='btn btn-outline-info'>Try Example 1</button>
+        <button id="example-button2" class='btn btn-outline-info'>Try Example 2</button>
+        <button id="example-button3" class='btn btn-outline-info'>Try Example 3</button>
+        <br><hr>
         <button id="synthesize-button" class='btn btn-success btn-lg'>Synthesize</button>
         <button id="synthesize-cancel-button" class='btn btn-primary btn-lg' style="display: none">Cancel</button>
         <br><br>
@@ -168,6 +178,7 @@ pd.DataFrame(
 <script src="/js/editor.js"></script>
 <script src="/js/previews.js"></script>
 <script src="/js/autopandas.js"></script>
+<script src="/js/examples.js"></script>
 <script src="/js/app.js"></script>
 <script>
     initialize();
