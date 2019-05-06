@@ -57,6 +57,12 @@ function solution_poller(uid, results_container) {
                         $('#synthesize-cancel-button').hide();
                     }
                 },
+                
+                error: function (msg) {
+                    $(results_container).find(':first').remove();
+                    $('#synthesize-button').show();
+                    $('#synthesize-cancel-button').hide();
+                }
             }
         );
     }
