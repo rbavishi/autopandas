@@ -42,4 +42,23 @@ function setup_examples() {
                              "pd.DataFrame({'rkey': ['a', 'b', 'd'], 'data2': range(20, 23)})"]);
         setup_output("pd.DataFrame({'lkey': {0: 'b', 1: 'b', 2: 'b', 3: 'a', 4: 'a', 5: 'a'}, 'data1': {0: 10, 1: 11, 2: 16, 3: 12, 4: 14, 5: 15}, 'rkey': {0: 'b', 1: 'b', 2: 'b', 3: 'a', 4: 'a', 5: 'a'}, 'data2': {0: 21, 1: 21, 2: 21, 3: 20, 4: 20, 5: 20}})")
     });
+
+    $('#example-button3').click(() => {
+        setup_inputs(["pd.DataFrame(\n" +
+        " {'country': {0: 'Afghanistan',\n" +
+        "              1: 'Albania',\n" +
+        "              2: 'Algeria',\n" +
+        "              3: 'Andorra',\n" +
+        "              4: 'Angola'},\n" +
+        "  'beer_servings': {0: 0.1, 1: 89, 2: 25, 3: 245, 4: 217},\n" +
+        "  'spirit_servings': {0: 0.2, 1: 132, 2: 0.5, 3: 138, 4: 57},\n" +
+        "  'wine_servings': {0: 0.3, 1: 54, 2: 14, 3: 312, 4: 45},\n" +
+        "  'total_litres_of_pure_alcohol': {0: 0.6, 1: 4.9, 2: 0.7, 3: 12.4, 4: 5.9},\n" +
+        "  'continent': {0: 'Asia', 1: 'Europe', 2: 'Africa', 3: 'Europe', 4: 'Africa'}}\n" +
+        ")"]);
+
+        setup_output("df = pd.DataFrame({'beer_servings': {'Africa': 121.0, 'Asia': 0.1, 'Europe': 167.0}, 'spirit_servings': {'Africa': 28.75, 'Asia': 0.2, 'Europe': 135.0}, 'wine_servings': {'Africa': 29.5, 'Asia': 0.3, 'Europe': 183.0}, 'total_litres_of_pure_alcohol': {'Africa': 3.3, 'Asia': 0.6, 'Europe': 8.65}})\n" +
+            "df.index.names = ['continent']\n" +
+            "df");
+    });
 }
