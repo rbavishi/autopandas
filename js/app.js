@@ -64,7 +64,7 @@ function initialize_results_container() {
 function add_result(code) {
     let results_container = $('#div-autopandas-result-codes')[0];
     let result = $('' +
-        '<pre id="result" class="copytoclipboard noselect">' +
+        '<pre id="result" class="copytoclipboard noselect line-numbers">' +
         '<code class=" language-python">' + code + '</code>' +
         '<button type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy">' +
         '<i class="far fa-copy fa-lg"></i>' +
@@ -97,8 +97,8 @@ function initialize_synthesizer() {
         $(results_container).empty();
         $(results_container).append(custom_waiting_logo('Initializing'));
 
-        $('.divider').show();
         $('.autopandas-results').show();
+        $('#a-autopandas-results').tab('show');
         $.ajax(
             {
                 type: "POST",
