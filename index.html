@@ -99,10 +99,6 @@
             color: #00adff;
         }
 
-        body.highlight-is-active {
-            pointer-events:  none;
-        }
-
         .highlight-elem {
             position: relative;
             -webkit-box-shadow: 0 0 0 100vmax rgba(0,0,0,.3);
@@ -207,7 +203,7 @@ pd.DataFrame(
                 It adopts the programming-by-example approach in that users specify intent using input-output examples which are then used
                 to synthesize a program that correctly produces the desired output given the input. This website serves as an interactive interface to the core engine.
 
-                <br><br><h3>Getting Started</h3><hr><button class="btn btn-outline-primary">Interactive Tutorial</button><br><br>
+                <br><br><h3>Getting Started</h3><hr><button id="interactive-tutorial" class="btn btn-outline-primary">Interactive Tutorial</button><br><br>
                 <h4>I/O Example</h4>
                 We currently allow you to specify <i>one</i> input-output example. Inputs can be added by clicking the
                 "Add Input" button. The primary input format is code, which accepts arbitary
@@ -219,9 +215,9 @@ pd.DataFrame(
                 such that the last statement is an expression. An example of such a snippet is provided below.
                 Try copy-pasting it into one of the code-boxes on the left and see the preview!
 
-                <br><br><pre id="code-snippet-example" class="copytoclipboard noselect line-numbers"><code class=" language-python" style="box-shadow: 0 0 0 100v">a = pd.DataFrame([[1,2], [3,4]])
-a.columns = ['a', 'b']
-a</code><button type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy"><i class="far fa-copy fa-lg"></i></button></pre>
+                <br><br><pre id="code-snippet-example" class="copytoclipboard noselect line-numbers"><code class=" language-python">df = pd.DataFrame([[1,2], [3,4]])
+df.columns = ['a', 'b']
+df</code><button type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy"><i class="far fa-copy fa-lg"></i></button></pre>
             </div>
             <div id="autopandas-results-tab" class="tab-pane fade">
                 <div id="autopandas-results" class="autopandas-results">
@@ -244,6 +240,7 @@ a</code><button type="button" class="btn btn-default copybtn js-tooltip" data-to
 <script src="/js/previews.js"></script>
 <script src="/js/autopandas.js"></script>
 <script src="/js/examples.js"></script>
+<script src="/js/tutorial.js"></script>
 <script src="/js/app.js"></script>
 <script>
     initialize();

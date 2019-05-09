@@ -136,7 +136,12 @@ function initialize() {
     });
 
     $('.js-tooltip').tooltip();
+    $(document).on('click', '.highlight-elem', function(e) {
+        defocus_element(e.target);
+    });
+
     initialize_clipboard();
     initialize_synthesizer();
     setup_examples();
+    make_tutorial();
 }

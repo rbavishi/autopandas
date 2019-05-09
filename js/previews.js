@@ -65,11 +65,18 @@ function makeDataFramePreview(hostDiv, data) {
     });
 }
 
+function makeDefaultPreview(hostDiv, text) {
+    $(hostDiv).empty();
+    $(hostDiv).append($('<pre>' + text + '</pre>'));
+}
+
 function makePreview(hostDiv, dtype, data) {
     if (dtype == null) dtype = 'dataframe';
 
     if (dtype === 'dataframe') {
         makeDataFramePreview(hostDiv, data);
+    } else {
+        makeDefaultPreview(hostDiv, data)
     }
 
 }

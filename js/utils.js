@@ -58,6 +58,10 @@ function tooltip_message(elem, msg, timeout) {
     }, timeout);
 }
 
+function hide_tooltip(elem) {
+    $(elem).tooltip('hide');
+}
+
 
 function focus_element(elem) {
     $(elem).addClass('highlight-elem');
