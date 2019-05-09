@@ -18,6 +18,29 @@ function create_synthesis_task() {
     }
 }
 
+function add_result(code, id) {
+    let results_container = $('#div-autopandas-result-codes')[0];
+    let result = $('' +
+        '<p><b>Solution ' + id + ':</b></p><pre id="result" class="copytoclipboard noselect line-numbers">' +
+        '<code class=" language-python">' + code + '</code>' +
+        '<button type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy">' +
+        '<i class="far fa-copy fa-lg"></i>' +
+        '</button></pre>');
+    let id_num = results_container.childElementCount;
+
+    //  Append the id_num to each of the ids to ensure uniqueness
+    result.find("[id]").each(function () {
+        this.id = this.id.replace(/\d+$/, "") + id_num;
+    });
+
+    result.find(".copybtn").each(function () {
+        $(this).tooltip();
+    });
+
+    $(results_container).append(result);
+    Prism.highlightAll();
+}
+
 function solution_poller(uid, results_container) {
     let prev_solutions = [];
     function poller() {
@@ -41,7 +64,7 @@ function solution_poller(uid, results_container) {
 
                     if (msg.solutions && msg.solutions.length > prev_solutions.length) {
                         for(let i = prev_solutions.length; i < msg.solutions.length; i++) {
-                            add_result(msg.solutions[i]);
+                            add_result(msg.solutions[i], i + 1);
                         }
                         prev_solutions = msg.solutions;
                     }

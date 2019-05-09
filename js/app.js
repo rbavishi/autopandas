@@ -30,7 +30,7 @@ function create_user_input(caption, id_num) {
     return result;
 }
 
-function initialize_results_container() {
+function initialize_clipboard() {
     let clipboard = new ClipboardJS('.copybtn', {
         target: function (trigger) {
             let result = trigger.previousElementSibling;
@@ -59,29 +59,6 @@ function initialize_results_container() {
             $(event.trigger).tooltip('hide');
         }, 2000);
     });
-}
-
-function add_result(code) {
-    let results_container = $('#div-autopandas-result-codes')[0];
-    let result = $('' +
-        '<pre id="result" class="copytoclipboard noselect line-numbers">' +
-        '<code class=" language-python">' + code + '</code>' +
-        '<button type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy">' +
-        '<i class="far fa-copy fa-lg"></i>' +
-        '</button></pre>');
-    let id_num = results_container.childElementCount;
-
-    //  Append the id_num to each of the ids to ensure uniqueness
-    result.find("[id]").each(function () {
-        this.id = this.id.replace(/\d+$/, "") + id_num;
-    });
-
-    result.find(".copybtn").each(function () {
-        $(this).tooltip();
-    });
-
-    $(results_container).append(result);
-    Prism.highlightAll();
 }
 
 function initialize_synthesizer() {
@@ -122,7 +99,9 @@ function initialize_synthesizer() {
                 },
 
                 error: function (resp) {
-                    warn("Something went wrong. Try again");
+                    warn("Could not submit task. Please try again later");
+                    $(results_container).find(':first').remove();
+                    $(results_container).append($("<p>Could not submit task. Please try again later</p>"));
                     synthesize_button.show();
                     synthesis_cancel_button.hide();
                     cur_task = null;
@@ -157,7 +136,7 @@ function initialize() {
     });
 
     $('.js-tooltip').tooltip();
-    initialize_results_container();
+    initialize_clipboard();
     initialize_synthesizer();
     setup_examples();
 }

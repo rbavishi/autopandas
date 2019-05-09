@@ -96,14 +96,27 @@
         }
 
         .far:hover{
-          color: #00adff;
+            color: #00adff;
+        }
+
+        body.highlight-is-active {
+            pointer-events:  none;
+        }
+
+        .highlight-elem {
+            position: relative;
+            -webkit-box-shadow: 0 0 0 100vmax rgba(0,0,0,.3);
+            -moz-box-shadow: 0 0 0 100vmax rgba(0,0,0,.3);
+            box-shadow: 0 0 0 100vmax rgba(0,0,0,.3);
+            z-index: 9999;
+            pointer-events: auto;
         }
     </style>
 </head>
 
 <body>
 <div id="div-autopandas-logo">
-    <img src="/imgs/autopandas_logo.png" alt="AutoPandas" width="50%">
+    <img src="/imgs/autopandas_logo.png" alt="AutoPandas" width="40%">
 </div>
 
 <div id="alerts" class="interaction-error"></div>
@@ -146,7 +159,7 @@ pd.DataFrame(
         <button id="example-button2" class='btn btn-outline-info'>Try Example 2</button>
         <button id="example-button3" class='btn btn-outline-info'>Try Example 3</button>
         <br><hr>
-        <button id="synthesize-button" class='btn btn-success btn-lg'>Synthesize</button>
+        <button id="synthesize-button" class='btn btn-success btn-lg' data-toggle="tooltip" data-placement="right">Synthesize</button>
         <button id="synthesize-cancel-button" class='btn btn-primary btn-lg' style="display: none">Cancel</button>
         <br><br>
 
@@ -175,7 +188,7 @@ pd.DataFrame(
     <div class="autopandas-info-and-results">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a id="a-autopandas-tutorial" class="nav-link active" data-toggle="tab" href="#autopandas-tutorial">Tutorial</a>
+                <a id="a-autopandas-about" class="nav-link active" data-toggle="tab" href="#autopandas-about">About</a>
             </li>
             <li class="nav-item d-inline-block">
                 <a id="a-autopandas-results" class="nav-link" data-toggle="tab" href="#autopandas-results-tab">Results</a>
@@ -185,7 +198,30 @@ pd.DataFrame(
             </li>
         </ul>
         <div class="tab-content">
-            <div id="autopandas-tutorial" class="tab-pane fade show active">
+            <div id="autopandas-about" class="tab-pane fade show active">
+                <br>
+                <h3>What is AutoPandas?</h3><hr>
+                <b>AutoPandas</b> is a
+                <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2017/10/program_synthesis_now.pdf">program synthesis</a>
+                engine for the <a href="https://pandas.pydata.org/">Pandas</a> python library.
+                It adopts the programming-by-example approach in that users specify intent using input-output examples which are then used
+                to synthesize a program that correctly produces the desired output given the input. This website serves as an interactive interface to the core engine.
+
+                <br><br><h3>Getting Started</h3><hr><button class="btn btn-outline-primary">Interactive Tutorial</button><br><br>
+                <h4>I/O Example</h4>
+                We currently allow you to specify <i>one</i> input-output example. Inputs can be added by clicking the
+                "Add Input" button. The primary input format is code, which accepts arbitary
+                Python, however we provide a preview for the common data-structures such as Pandas DataFrames that allow
+                visual editing via the Preview tab. Changes made in the preview, when saved, are reflected in the code.
+
+                <br><br><h4>Writing Code</h4>
+                The code-based input boxes accept Jupyter-style snippets i.e. the snippet can be a sequence of statements
+                such that the last statement is an expression. An example of such a snippet is provided below.
+                Try copy-pasting it into one of the code-boxes on the left and see the preview!
+
+                <br><br><pre id="code-snippet-example" class="copytoclipboard noselect line-numbers"><code class=" language-python" style="box-shadow: 0 0 0 100v">a = pd.DataFrame([[1,2], [3,4]])
+a.columns = ['a', 'b']
+a</code><button type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy"><i class="far fa-copy fa-lg"></i></button></pre>
             </div>
             <div id="autopandas-results-tab" class="tab-pane fade">
                 <div id="autopandas-results" class="autopandas-results">
