@@ -18,12 +18,12 @@ function create_synthesis_task() {
     }
 }
 
-function add_result(code, id) {
+function add_result(uid, code, id) {
     let results_container = $('#div-autopandas-result-codes')[0];
     let result = $('' +
-        '<p><b>Solution ' + id + ':</b></p><pre id="result" class="copytoclipboard noselect line-numbers">' +
+        '<p><b>Solution ' + id + ':</b></p><pre class="copytoclipboard noselect line-numbers">' +
         '<code class=" language-python">' + code + '</code>' +
-        '<button type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy">' +
+        '<button id="autopandas-result" type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy">' +
         '<i class="far fa-copy fa-lg"></i>' +
         '</button></pre>');
     let id_num = results_container.childElementCount;
@@ -35,6 +35,10 @@ function add_result(code, id) {
 
     result.find(".copybtn").each(function () {
         $(this).tooltip();
+    });
+
+    result.find("[id*='autopandas-result']").each(function () {
+        $(this).data("uid", uid);
     });
 
     $(results_container).append(result);
@@ -64,7 +68,7 @@ function solution_poller(uid, results_container) {
 
                     if (msg.solutions && msg.solutions.length > prev_solutions.length) {
                         for(let i = prev_solutions.length; i < msg.solutions.length; i++) {
-                            add_result(msg.solutions[i], i + 1);
+                            add_result(uid, msg.solutions[i], i + 1);
                         }
                         prev_solutions = msg.solutions;
                     }

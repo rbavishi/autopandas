@@ -41,6 +41,13 @@ function initialize_clipboard() {
 
 
     clipboard.on('success', function(event) {
+        let text = event.text;
+        $(event.trigger).parent().find("[id*='autopandas-result']").each(function () {
+            let idx = $(this).attr("id").substr(17);
+            let uid = $(this).data("uid");
+            ajax_lambda({task: 'mark_accepted', uid: uid, idx: idx, code: text});
+        });
+
         event.clearSelection();
         $(event.trigger).parent().addClass('noselect');
         $(event.trigger).attr("data-original-title", "Copied!");
@@ -72,40 +79,58 @@ function initialize_synthesizer() {
         let payload = create_synthesis_task();
         let results_container = $('#div-autopandas-result-codes')[0];
         $(results_container).empty();
-        $(results_container).append(custom_waiting_logo('Initializing'));
 
+        //  First we verify the input-output example.
+        //  If it is successful, we get back a uid that we then pass to the engine service
         $('.autopandas-results').show();
         $('#a-autopandas-results').tab('show');
-        $.ajax(
-            {
-                type: "POST",
-                url: "http://127.0.0.1:5000/autopandas",
-                data: JSON.stringify(payload),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                
-                success: function (resp) {
-                    let uid = resp.uid;
-                    //  Instantiate a poller
-                    let poller = solution_poller(uid, results_container);
 
-                    let timer = window.setTimeout(poller, 2000);
-                    cur_task = {
-                        uid: uid,
-                        poller: poller,
-                        timer: timer
-                    };
-                    success_alert("Task Successfully Submitted");
-                },
+        $(results_container).append(custom_waiting_logo('Validating'));
+        let validation_query = ajax_lambda({task: 'validate', inputs: payload.inputs, output: payload.output});
+        let engine_query = validation_query.then(
+            function (msg) {
+                payload.uid = msg.uid;
+                return ajax_engine(payload);
+            },
 
-                error: function (resp) {
-                    warn("Could not submit task. Please try again later");
-                    $(results_container).find(':first').remove();
-                    $(results_container).append($("<p>Could not submit task. Please try again later</p>"));
-                    synthesize_button.show();
-                    synthesis_cancel_button.hide();
-                    cur_task = null;
+            function (error) {
+                if (error.responseJSON) {
+                    let log = error.responseJSON['log'];
+                    warn("Encountered Error : " + log);
+                } else {
+                    warn("Task validation failed");
                 }
+
+                $(results_container).find(':first').remove();
+                $(results_container).append($("<p>Could not validate task. Please try again</p>"));
+                synthesize_button.show();
+                synthesis_cancel_button.hide();
+            }
+        );
+
+        engine_query.then(
+            function (resp) {
+                let uid = resp.uid;
+                //  Instantiate a poller
+                let poller = solution_poller(uid, results_container);
+
+                let timer = window.setTimeout(poller, 2000);
+                cur_task = {
+                    uid: uid,
+                    poller: poller,
+                    timer: timer
+                };
+
+                success_alert("Task Successfully Submitted");
+            },
+
+            function (resp) {
+                warn("Could not submit task. Please try again later");
+                $(results_container).find(':first').remove();
+                $(results_container).append($("<p>Could not submit task. Please try again later</p>"));
+                synthesize_button.show();
+                synthesis_cancel_button.hide();
+                cur_task = null;
             }
         );
     });

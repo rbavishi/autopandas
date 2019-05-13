@@ -31,37 +31,27 @@ function makeDataFramePreview(hostDiv, data) {
             rowDelimiter: '\n',
             bom: false
         });
-        let baseUrl = "https://dz4k5ce9l1.execute-api.us-east-2.amazonaws.com";
-        let stage = "default";
-        let interactionService = baseUrl + "/" + stage + "/AutoPandasInteractionEngine";
-        $.ajax(
-            {
-                type: "POST",
-                url: interactionService,
-                data: JSON.stringify({task: 'tocode', dtype:'dataframe', val: string_repr}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (msg) {
-                    console.log(msg.code);
-                    let parentId = $(hostDiv).attr('id');
-                    console.log(parentId);
-                    let codeElem = $('#iocode' + parentId.substr(-1));
-                    codeElem.find('.pycode').each(function () {
-                        $.data(this, "editor").setValue(msg.code, 1);
-                    });
-                    let codeElemList = $('#a-iocode' + parentId.substr(-1));
-                    codeElemList.tab('show');
-                },
-                error: function (errormessage) {
-                    if (errormessage.responseJSON) {
-                        let log = errormessage.responseJSON['log'];
-                        warn("Encountered Error : " + log);
-                    } else {
-                        warn("Something went wrong.");
-                    }
-                }
+
+        let tocode_query = ajax_lambda({task: 'tocode', dtype: 'dataframe', val: string_repr});
+        tocode_query.done(function (msg) {
+            console.log(msg.code);
+            let parentId = $(hostDiv).attr('id');
+            console.log(parentId);
+            let codeElem = $('#iocode' + parentId.substr(-1));
+            codeElem.find('.pycode').each(function () {
+                $.data(this, "editor").setValue(msg.code, 1);
+            });
+            let codeElemList = $('#a-iocode' + parentId.substr(-1));
+            codeElemList.tab('show');
+
+        }).fail(function (error) {
+            if (error.responseJSON) {
+                let log = error.responseJSON['log'];
+                warn("Encountered Error : " + log);
+            } else {
+                warn("Something went wrong.");
             }
-        );
+        });
     });
 }
 
