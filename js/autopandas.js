@@ -51,7 +51,7 @@ function solution_poller(uid, results_container) {
         $.ajax(
             {
                 type: "POST",
-                url: "http://127.0.0.1:8000/autopandas",
+                url: "http://127.0.0.1:5000/autopandas",
                 data: JSON.stringify({task: 'poll', uid: uid}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",

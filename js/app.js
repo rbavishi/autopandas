@@ -90,7 +90,6 @@ function initialize_synthesizer() {
         let engine_query = validation_query.then(
             function (msg) {
                 payload.uid = msg.uid;
-                console.log("Created uid", msg.uid);
                 return ajax_engine(payload);
             },
 
@@ -113,7 +112,6 @@ function initialize_synthesizer() {
             function (resp) {
                 let uid = resp.uid;
                 //  Instantiate a poller
-                console.log("Got uid", uid);
                 let poller = solution_poller(uid, results_container);
 
                 let timer = window.setTimeout(poller, 2000);
@@ -158,8 +156,8 @@ function initialize() {
     let inputs_container = $('#autopandas-inputs-container')[0];
     $(inputs_container).append(add_input_button);
     $(add_input_button).click(() => {
-        let cntr = inputs_container.childElementCount;
-        inputs_container.insertBefore(create_user_input('inps[' + (cntr - 1) + ']', cntr), add_input_button);
+        let cntr = inputs_container.childElementCount - 1;  // Start from zero
+        inputs_container.insertBefore(create_user_input('inps[' + cntr + ']', cntr), add_input_button);
     });
 
     $('.js-tooltip').tooltip();
