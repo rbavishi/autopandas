@@ -71,10 +71,10 @@ function initialize_clipboard() {
 function initialize_synthesizer() {
     let cur_task = null;
     let synthesize_button = $('#synthesize-button');
-    let synthesis_cancel_button = $('#synthesize-cancel-button');
+    let synthesis_wait_button = $('#synthesize-cancel-button');
     synthesize_button.click(() => {
         synthesize_button.hide();
-        synthesis_cancel_button.show();
+        synthesis_wait_button.show();
 
         let payload = create_synthesis_task();
         let results_container = $('#div-autopandas-result-codes')[0];
@@ -104,7 +104,7 @@ function initialize_synthesizer() {
                 $(results_container).find(':first').remove();
                 $(results_container).append($("<p>Could not validate task. Please try again</p>"));
                 synthesize_button.show();
-                synthesis_cancel_button.hide();
+                synthesis_wait_button.hide();
             }
         );
 
@@ -129,20 +129,10 @@ function initialize_synthesizer() {
                 $(results_container).find(':first').remove();
                 $(results_container).append($("<p>Could not submit task. Please try again later</p>"));
                 synthesize_button.show();
-                synthesis_cancel_button.hide();
+                synthesis_wait_button.hide();
                 cur_task = null;
             }
         );
-    });
-
-    synthesis_cancel_button.click(() => {
-        if (cur_task != null) {
-            window.clearTimeout(cur_task.timer);
-            cur_task = null;
-        }
-
-        synthesis_cancel_button.hide();
-        synthesize_button.show();
     });
 }
 
