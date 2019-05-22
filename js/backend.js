@@ -15,7 +15,7 @@ function ajax_lambda(payload) {
 function ajax_engine(payload) {
     return $.ajax({
         type: "POST",
-        url: "http://127.0.0.1:5000/autopandas",
+        url: "http://128.32.35.240:8000/autopandas",
         data: JSON.stringify(payload),
         contentType: "application/json; charset=utf-8",
         dataType: "json"
