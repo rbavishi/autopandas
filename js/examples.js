@@ -30,7 +30,11 @@ function setup_example($elem, inputs, output) {
         setup_inputs(inputs);
         setup_output(output);
 
-        $('[id*="a-iopreview"]').each(function () {
+        //$('[id*="a-iopreview"]').each(function () {
+            //fire_click(this);
+        //});
+
+        $('[id*="a-iocode"]').each(function () {
             fire_click(this);
         });
 
@@ -46,7 +50,7 @@ function setup_examples() {
         "cancelable": false
     });
 
-    setup_example($('#example-button1'),
+    setup_example($('#example-button3'),
         ["pd.DataFrame({'k1': {0: 'one', 1: 'one', 2: 'one', 3: 'two', 4: 'two', 5: 'two', 6: 'two'}, 'k2': {0: 11, 1: 11, 2: 12, 3: 13, 4: 13, 5: 14, 6: 14}})"],
         "pd.DataFrame({'k1': {0: 'one', 2: 'one', 3: 'two', 5: 'two'}, 'k2': {0: 11, 2: 12, 3: 13, 5: 14}})");
 
@@ -55,7 +59,7 @@ function setup_examples() {
                              "pd.DataFrame({'rkey': ['a', 'b', 'd'], 'data2': range(20, 23)})"],
         "pd.DataFrame({'lkey': {0: 'b', 1: 'b', 2: 'b', 3: 'a', 4: 'a', 5: 'a'}, 'data1': {0: 10, 1: 11, 2: 16, 3: 12, 4: 14, 5: 15}, 'rkey': {0: 'b', 1: 'b', 2: 'b', 3: 'a', 4: 'a', 5: 'a'}, 'data2': {0: 21, 1: 21, 2: 21, 3: 20, 4: 20, 5: 20}})");
 
-    setup_example($('#example-button3'),
+    setup_example($('#example-button1'),
         ["pd.DataFrame(\n" +
         " {'country': {0: 'Afghanistan',\n" +
         "              1: 'Albania',\n" +
