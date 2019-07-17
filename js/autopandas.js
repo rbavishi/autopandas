@@ -43,6 +43,10 @@ function add_result(uid, code, id) {
     Prism.highlightAll();
 }
 
+function open_submit_feedback_tab() {
+    $('#a-submit-feedback').tab('show');
+}
+
 function solution_poller(uid, results_container) {
     let prev_solutions = [];
     function poller() {
@@ -69,6 +73,12 @@ function solution_poller(uid, results_container) {
                 $(results_container).find(':first').remove();
                 $('#synthesize-button').show();
                 $('#synthesize-cancel-button').hide();
+                if (prev_solutions.length === 0) {
+                    $(results_container).prepend($('<p><b><span style="color: #c92c2c">No solutions found</span></b>. ' +
+                        'Please make sure the output is *exactly* correct as we do not support noisy input-output examples just yet.</p>'));
+                } else {
+                    $(results_container).prepend($('<p><a href="#" onclick="open_submit_feedback_tab()">Tell us</a> how we did!</p>'));
+                }
             }
         }).fail(function (error) {
             $(results_container).find(':first').remove();

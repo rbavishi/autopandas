@@ -30,6 +30,24 @@ function create_user_input(caption, id_num) {
     return result;
 }
 
+function record_feedback(text) {
+    let feedback_query = ajax_lambda({task: 'feedback', text: text});
+    feedback_query.then(
+        function(msg) {
+            success_alert("Feedback successfully submitted!")
+        },
+
+        function(error) {
+            if (error.responseJSON) {
+                let log = error.responseJSON['log'];
+                warn("Encountered Error : " + log);
+            } else {
+                warn("Feedback submission failed. Please try again.");
+            }
+        }
+    )
+}
+
 function initialize_clipboard() {
     let clipboard = new ClipboardJS('.copybtn', {
         target: function (trigger) {
@@ -154,6 +172,12 @@ function initialize() {
     $(document).on('click', '.highlight-elem', function(e) {
         defocus_element(e.target);
     });
+
+    $('#feedback-form').submit(function (event) {
+        record_feedback(this.feedbackTextareaName.value);
+        event.preventDefault();
+    });
+
 
     initialize_clipboard();
     initialize_synthesizer();

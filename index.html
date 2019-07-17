@@ -18,6 +18,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.4/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script>
+        function limitText(limitField, limitCount, limitNum) {
+            if (limitField.value.length > limitNum) {
+                limitField.value = limitField.value.substring(0, limitNum);
+            } else {
+                $(limitCount).text(limitNum - limitField.value.length);
+            }
+        }
+    </script>
     <style>
         body {
             margin: 5%;
@@ -212,6 +221,9 @@ pd.DataFrame(
             <li class="nav-item">
                 <a id="a-supported-functions" class="nav-link" data-toggle="tab" href="#autopandas-supported-functions">Supported Functions</a>
             </li>
+            <li class="nav-item">
+                <a id="a-submit-feedback" class="nav-link" data-toggle="tab" href="#autopandas-submit-feedback">Submit Feedback</a>
+            </li>
         </ul>
         <div class="tab-content">
             <div id="autopandas-about" class="tab-pane fade show active">
@@ -249,6 +261,26 @@ df</code><button type="button" class="btn btn-default copybtn js-tooltip" data-t
                 </div>
             </div>
             <div id="autopandas-log" class="tab-pane fade" style="height: 50vh; overflow-y: auto">
+            </div>
+            <div id="autopandas-submit-feedback" class="tab-pane fade" style="height: 50vh; overflow-y: auto">
+                <form id="feedback-form">
+                    <div class="form-group">
+                        <br>
+                        <b>We greatly value your feedback!</b><br>
+                        Feel free to reach out to us with constructive criticism as well as any ideas
+                        you may have to improve the service. If you would like us to respond to a query,
+                        please leave your email in the feedback. Thank you!
+                        <br>
+                        <label for="feedback-textarea"></label>
+                        <textarea class="form-control" id="feedback-textarea" name="feedbackTextareaName" rows="3"
+                                  onKeyDown="limitText(this.form.feedbackTextareaName, $('#countdown-element')[0], 500);"
+                                  onKeyUp="limitText(this.form.feedbackTextareaName, $('#countdown-element')[0], 500);"></textarea>
+                        <span style="font-size: x-small; ">Remaining characters:
+                            <span id="countdown-element" style="color: #c92c2c">500</span>
+                        </span><br><br>
+                        <button type="submit" class="btn btn-outline-primary">Submit</button>
+                    </div>
+                </form>
             </div>
             <div id="autopandas-supported-functions" class="tab-pane fade" style="height: 50vh; overflow-y: auto">
                 <pre>
