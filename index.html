@@ -219,6 +219,9 @@ pd.DataFrame(
                 <a id="a-autopandas-log" class="nav-link" data-toggle="tab" href="#autopandas-log">Log</a>
             </li>
             <li class="nav-item">
+                <a id="a-faq" class="nav-link" data-toggle="tab" href="#autopandas-faq">FAQ</a>
+            </li>
+            <li class="nav-item">
                 <a id="a-supported-functions" class="nav-link" data-toggle="tab" href="#autopandas-supported-functions">Supported Functions</a>
             </li>
             <li class="nav-item">
@@ -261,6 +264,21 @@ df</code><button type="button" class="btn btn-default copybtn js-tooltip" data-t
                 </div>
             </div>
             <div id="autopandas-log" class="tab-pane fade" style="height: 50vh; overflow-y: auto">
+            </div>
+            <div id="autopandas-faq" class="tab-pane fade" style="height: 50vh; overflow-y: auto">
+                <br>
+                <h4>What do you support?</h4>
+                Currently we synthesize sequences of function calls (of a maximum length three) where functions are one of ~120 Pandas
+                <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html">DataFrame</a> functions, a list of which is available <a href="#" onclick="(function(){
+                    $('#a-supported-functions').tab('show');
+                })()">here</a>. We currently do not synthesize conditionals or lambda expressions such as the ones used with <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.loc.html">df.loc</a>.
+                However, one can provide such expressions as an additional input, and AutoPandas can figure out the right arguments to pass to such functions.
+
+                <hr><h4>How long does AutoPandas take to find a solution?</h4>
+                AutoPandas outputs solutions as soon as it finds them. The first one is usually quick (< 10 seconds).
+                Currently, we timeout our system after 30 seconds per request, and output all the solutions we find. We plan to increase this timeout as we add more compute.
+                <hr>
+                <span style="font-size: small">Can't find your question? Send us your queries <a href="#" onclick="open_submit_feedback_tab()">here</a>!</span>
             </div>
             <div id="autopandas-submit-feedback" class="tab-pane fade" style="height: 50vh; overflow-y: auto">
                 <form id="feedback-form">
