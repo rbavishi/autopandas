@@ -72,7 +72,5 @@ function setup_examples() {
         "  'total_litres_of_pure_alcohol': {0: 0.6, 1: 4.9, 2: 0.7, 3: 12.4, 4: 5.9},\n" +
         "  'continent': {0: 'Asia', 1: 'Europe', 2: 'Africa', 3: 'Europe', 4: 'Africa'}}\n" +
         ")"],
-        "df = pd.DataFrame({'beer_servings': {'Africa': 121.0, 'Asia': 0.1, 'Europe': 167.0}, 'spirit_servings': {'Africa': 28.75, 'Asia': 0.2, 'Europe': 135.0}, 'wine_servings': {'Africa': 29.5, 'Asia': 0.3, 'Europe': 183.0}, 'total_litres_of_pure_alcohol': {'Africa': 3.3, 'Asia': 0.6, 'Europe': 8.65}})\n" +
-            "df.index.names = ['continent']\n" +
-            "df");
+        "pd.DataFrame({'beer_servings': {'Africa': 121.0, 'Asia': 0.1, 'Europe': 167.0}, 'spirit_servings': {'Africa': 28.75, 'Asia': 0.2, 'Europe': 135.0}, 'wine_servings': {'Africa': 29.5, 'Asia': 0.3, 'Europe': 183.0}, 'total_litres_of_pure_alcohol': {'Africa': 3.3, 'Asia': 0.6, 'Europe': 8.65}})");
 }

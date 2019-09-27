@@ -16,11 +16,29 @@ function create_synthesis_task() {
     }
 }
 
+var entityMap = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+  '/': '&#x2F;',
+  '`': '&#x60;',
+  '=': '&#x3D;'
+};
+
+function escapeHTML (string) {
+  return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+    return entityMap[s];
+  });
+}
+
+
 function add_result(uid, code, id) {
     let results_container = $('#div-autopandas-result-codes')[0];
     let result = $('' +
         '<p><b>Solution ' + id + ':</b></p><pre class="copytoclipboard noselect line-numbers">' +
-        '<code class=" language-python">' + code + '</code>' +
+        '<code class=" language-python">' + escapeHTML(code) + '</code>' +
         '<button id="autopandas-result" type="button" class="btn btn-default copybtn js-tooltip" data-toggle="tooltip" data-placement="top" title="Copy">' +
         '<i class="far fa-copy fa-lg"></i>' +
         '</button></pre>');
