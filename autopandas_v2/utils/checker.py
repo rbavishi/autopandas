@@ -38,7 +38,7 @@ class Checker:
             return False
 
         try:
-            pd.testing.assert_frame_equal(v1, v2)
+            pd.testing.assert_frame_equal(v1, v2, check_names=False, check_dtype=False)
             return True
         except (AssertionError, TypeError, ValueError):
             return False
@@ -55,7 +55,7 @@ class Checker:
             return False
 
         try:
-            pd.testing.assert_series_equal(v1, v2)
+            pd.testing.assert_series_equal(v1, v2, check_dtype=False)
             return True
         except (AssertionError, TypeError, ValueError):
             return False

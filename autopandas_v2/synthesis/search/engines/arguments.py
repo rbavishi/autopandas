@@ -210,7 +210,7 @@ class BeamSearchEngine(BaseArgEngine):
         self.model_path = model_path
         self.beam_search_k = k
 
-        self.model_store: Dict[str, Dict[str, RelGraphInterface]] = {}
+        self.model_store: Dict[str, Dict[str, RelGraphInterface]] = collections.defaultdict(dict)
         for func in self.func_sequence:
             func_model_path = model_path + '/' + func.qual_name
 

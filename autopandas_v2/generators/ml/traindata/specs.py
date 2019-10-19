@@ -8,7 +8,7 @@ import itertools
 import dateutil
 from numpy import nan
 import re
-from autopandas_v2.generators.specs import df as s_df, dfgroupby as s_dfgroupby, rf as s_rf
+from autopandas_v2.generators.specs import df as s_df, dfgroupby as s_dfgroupby
 from autopandas_v2.generators.ml.traindata.randutils import RandDf, StrColGen, IntColGen, FloatColGen, BoolColGen, \
     RandStr, NaturalRandDf, bool_bags, ints_bags, floats_bags, string_bags, moar_nans_floats_bag
 
