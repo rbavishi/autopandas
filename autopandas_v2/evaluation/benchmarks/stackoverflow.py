@@ -7,7 +7,7 @@ from autopandas_v2.evaluation.benchmarks.base import Benchmark
 
 class PandasBenchmarks:
     # https://stackoverflow.com/questions/11881165
-    class SO_11881165(Benchmark):
+    class SO_11881165_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [pd.DataFrame({"a": [5, 6, 7, 8, 9], "b": [10, 11, 12, 13, 14]})]
@@ -17,7 +17,7 @@ class PandasBenchmarks:
 
     # https://stackoverflow.com/questions/11941492/
     # same thing
-    class SO_11941492(Benchmark):
+    class SO_11941492_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             df = pd.DataFrame({'group1': ['a', 'a', 'a', 'b', 'b', 'b'],
@@ -32,7 +32,7 @@ class PandasBenchmarks:
             self.seqs = [[0]]
 
     # https://stackoverflow.com/questions/13647222
-    class SO_13647222(Benchmark):
+    class SO_13647222_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -50,7 +50,7 @@ class PandasBenchmarks:
             self.seqs = [[0]]
 
     # https://stackoverflow.com/questions/18172851/
-    class SO_18172851(Benchmark):
+    class SO_18172851_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             df = pd.DataFrame({'daysago': {'2007-03-31': 62, '2007-03-10': 83, '2007-02-10': 111, '2007-01-13': 139,
@@ -86,7 +86,7 @@ class PandasBenchmarks:
             self.seqs = [[0]]
 
     # https://stackoverflow.com/questions/49583055
-    class SO_49583055(Benchmark):
+    class SO_49583055_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [pd.DataFrame({'ID': {0: 20, 1: 21, 2: 22, 3: 32, 4: 31, 5: 33},
@@ -112,7 +112,7 @@ class PandasBenchmarks:
 
     # https://stackoverflow.com/questions/49592930
     # ok I didn't uniqify the timestamps because that would change the actual output
-    class SO_49592930(Benchmark):
+    class SO_49592930_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [pd.DataFrame({'value': {pd.Timestamp('2014-05-21 09:30:00'): 0.0,
@@ -132,7 +132,7 @@ class PandasBenchmarks:
             self.seqs = [[0]]
 
     # https://stackoverflow.com/questions/49572546
-    class SO_49572546(Benchmark):
+    class SO_49572546_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -148,7 +148,7 @@ class PandasBenchmarks:
             self.funcs = ['df.combine_first']
             self.seqs = [[0]]
 
-    class SO_12860421(Benchmark):
+    class SO_12860421_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -165,7 +165,7 @@ class PandasBenchmarks:
             self.seqs = [[0]]
 
     # https://stackoverflow.com/questions/13261175
-    class SO_13261175(Benchmark):
+    class SO_13261175_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             df = pd.DataFrame({'name': ['A', 'B', 'A', 'B'], 'type': [11, 11, 12, 12],
@@ -178,7 +178,7 @@ class PandasBenchmarks:
             self.seqs = [[0]]
 
     # https://stackoverflow.com/questions/13793321
-    class SO_13793321(Benchmark):
+    class SO_13793321_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -189,7 +189,7 @@ class PandasBenchmarks:
             self.funcs = ['df.merge']
             self.seqs = [[0]]
 
-    class SO_14085517(Benchmark):
+    class SO_14085517_depth1(Benchmark):
         def __init__(self):
             super().__init__()
             text = '''\
@@ -213,330 +213,6 @@ NORM2\tWEIGHT MALAT W\t79.170\t118628.572692
             self.seqs = [[0]]
             self.funcs = ['df.sort_values']
 
-    # not completely unique because there have to be multiple keys with the same merge thing
-    class book_1(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'key': ['b', 'b', 'a', 'c', 'a', 'a', 'b'], 'data1': range(10, 17)}),
-                pd.DataFrame({'key': ['a', 'b', 'd'], 'data2': range(20, 23)}),
-            ]
-            self.output = self.inputs[0].merge(self.inputs[1])
-            self.seqs = [[0]]
-            self.funcs = ['df.merge']
-
-    # not completely unique because there have to be multiple keys with the same erge thing
-    class book_2(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'lkey': ['b', 'b', 'a', 'c', 'a', 'a', 'b'], 'data1': range(10, 17)}),
-                pd.DataFrame({'rkey': ['a', 'b', 'd'], 'data2': range(20, 23)}),
-            ]
-            self.output = self.inputs[0].merge(self.inputs[1], left_on='lkey', right_on='rkey')
-            self.seqs = [[0]]
-            self.funcs = ['df.merge']
-
-    class book_3(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'key': ['b', 'b', 'a', 'c', 'a', 'a', 'b'], 'data1': range(10, 17)}),
-                pd.DataFrame({'key': ['a', 'b', 'd'], 'data2': range(20, 23)}),
-            ]
-            self.output = self.inputs[0].merge(self.inputs[1], how='outer')
-            self.seqs = [[0]]
-            self.funcs = ['df.merge']
-
-    class book_4(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'key1': ['foo', 'foo', 'bar'], 'key2': ['one', 'two', 'one'], 'lval': [21, 22, 23]}),
-                pd.DataFrame(
-                    {'key1': ['foo', 'foo', 'bar', 'bar'], 'key2': ['one', 'one', 'one', 'two'],
-                     'rval': [24, 25, 26, 27]}),
-            ]
-            self.output = pd.DataFrame({'key1': {0: 'foo', 1: 'foo', 2: 'foo', 3: 'bar', 4: 'bar'},
-                                        'key2': {0: 'one', 1: 'one', 2: 'two', 3: 'one', 4: 'two'},
-                                        'lval': {0: 21.0, 1: 21.0, 2: 22.0, 3: 23.0, 4: np.NaN},
-                                        'rval': {0: 24.0, 1: 25.0, 2: np.NaN, 3: 26.0, 4: 27.0}},
-                                       columns=['key1', 'key2', 'lval', 'rval'])
-            self.seqs = [[0]]
-            self.funcs = ['df.merge']
-
-    class book_cf_1(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'a': [11., np.nan, 15., np.nan], 'b': [np.nan, 32., np.nan, 36.], 'c': range(12, 28, 4)}),
-                pd.DataFrame({'a': [45., 44., np.nan, 43., 47.], 'b': [np.nan, 63., 64., 66., 68.]}),
-            ]
-            self.output = self.inputs[0].combine_first(self.inputs[1])
-            self.seqs = [[0]]
-            self.funcs = ['df.combine_first']
-
-    class book_rs_1(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame(np.arange(6).reshape((2, 3)), index=pd.Index(['Ohio', 'Colorado'], name='state'),
-                             columns=pd.Index(['one', 'two', 'three'], name='number')),
-            ]
-            self.output = self.inputs[0].stack()
-            self.seqs = [[0]]
-            self.funcs = ['df.stack']
-
-    class book_clean_1(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame([[11., 16.5, 13.], [1., np.nan, np.nan], [np.nan, np.nan, np.nan], [np.nan, 6.5, 3.]],
-                             columns=['A', 'B', 'C'])
-            ]
-            self.output = self.inputs[0].dropna()
-            self.seqs = [[0]]
-            self.funcs = ['df.dropna']
-
-    class book_dup_1(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'k1': ['one'] * 3 + ['two'] * 4, 'k2': [11, 11, 12, 13, 13, 14, 14]}),
-            ]
-            self.output = self.inputs[0].drop_duplicates()
-            self.seqs = [[0]]
-            self.funcs = ['df.drop_duplicates']
-
-    class book_pivot_1(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'date': ['1959-03-31 00:00:00'] * 3 + ['1959-06-30 00:00:00'] * 3 + [
-                    '1959-09-30 00:00:00'] * 3 + ['1959-12-31 00:00:00'],
-                              'item': ['realgdp', 'infl', 'unemp', 'realgdp', 'infl', 'unemp', 'realgdp', 'infl',
-                                       'unemp', 'realgdp'],
-                              'value': [2710.349, 0.001, 5.800, 2778.801, 2.340, 5.100, 2775.488, 2.740, 5.300,
-                                        2785.204]}),
-            ]
-            self.output = self.inputs[0].pivot('date', 'item', 'value')
-            self.seqs = [[0]]
-            self.funcs = ['df.pivot']
-
-    class drop_1(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'City': {0: 'Ithaca',
-                                       1: 'Willingboro',
-                                       2: 'Holyoke',
-                                       3: 'Abilene',
-                                       4: 'New York Worlds Fair'},
-                              'Colors Reported': {0: np.nan, 1: np.nan, 2: np.nan, 3: np.nan, 4: np.nan},
-                              'Shape Reported': {0: 'TRIANGLE',
-                                                 1: 'OTHER',
-                                                 2: 'OVAL',
-                                                 3: 'DISK',
-                                                 4: 'LIGHT'},
-                              'State': {0: 'NI', 1: 'NJ', 2: 'CO', 3: 'KS', 4: 'NY'},
-                              'Time': {0: '6/1/1930 22:00',
-                                       1: '6/30/1930 20:00',
-                                       2: '2/15/1931 14:00',
-                                       3: '6/1/1931 13:00',
-                                       4: '4/18/1933 19:00'}})
-            ]
-            self.output = self.inputs[0].drop(columns='Colors Reported')
-            self.seqs = [[0]]
-            self.funcs = ['df.drop']
-
-    class drop_2(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'City': {0: 'Ithaca',
-                                       1: 'Willingboro',
-                                       2: 'Holyoke',
-                                       3: 'Abilene',
-                                       4: 'New York Worlds Fair'},
-                              'Colors Reported': {0: 'green', 1: 'vlack', 2: 'black', 3: 'ewsd', 4: 'red'},
-                              'Shape Reported': {0: 'TRIANGLE',
-                                                 1: 'OTHER',
-                                                 2: 'OVAL',
-                                                 3: 'DISK',
-                                                 4: 'LIGHT'},
-                              'State': {0: 'NY', 1: 'NJ', 2: 'CO', 3: 'KS', 4: 'NY'},
-                              'Time': {0: '6/1/1930 22:00',
-                                       1: '6/30/1930 20:00',
-                                       2: '2/15/1931 14:00',
-                                       3: '6/1/1931 13:00',
-                                       4: '4/18/1933 19:00'}})
-            ]
-            self.output = self.inputs[0].drop(['City', 'State'], axis=1)
-            self.seqs = [[0]]
-            self.funcs = ['df.drop']
-
-    class select_rows(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'City': {0: 'Ithaca',
-                                       1: 'Willingboro',
-                                       2: 'Holyoke',
-                                       3: 'Abilene',
-                                       4: 'New York Worlds Fair'},
-                              'Colors Reported': {0: np.nan, 1: np.nan, 2: np.nan, 3: np.nan, 4: np.nan},
-                              'Shape Reported': {0: 'TRIANGLE',
-                                                 1: 'OTHER',
-                                                 2: 'OVAL',
-                                                 3: 'DISK',
-                                                 4: 'LIGHT'},
-                              'State': {0: 'NI', 1: 'NJ', 2: 'CO', 3: 'KS', 4: 'NY'},
-                              'Time': {0: '6/1/1930 22:00',
-                                       1: '6/30/1930 20:00',
-                                       2: '2/15/1931 14:00',
-                                       3: '6/1/1931 13:00',
-                                       4: '4/18/1933 19:00'}})
-            ]
-            self.output = self.inputs[0].loc[0:2, ['City', 'State']]
-            self.seqs = [[0]]
-            self.funcs = ['df.loc_getitem']
-
-    # allowing categorical values
-    class sort_1(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'star_rating': {0: 9.3, 1: 9.2, 2: 9.1, 3: 9.0, 4: 8.9},
-                              'title': {0: 'The Shawshank Redemption',
-                                        1: 'The Godfather',
-                                        2: 'The Godfather: Part II',
-                                        3: 'The Dark Knight',
-                                        4: 'Pulp Fiction'},
-                              'content_rating': {0: 'R', 1: 'R', 2: 'R', 3: 'PG-13', 4: 'R'},
-                              'genre': {0: 'Crime', 1: 'Crime', 2: 'Crime', 3: 'Action', 4: 'Crime'},
-                              'duration': {0: 142, 1: 175, 2: 200, 3: 152, 4: 154},
-                              'actors_list': {0: (u'Tim Robbins', u'Morgan Freeman', u'Bob Gunton'),
-                                              1: (u'Marlon Brando', u'Al Pacino', u'James Caan'),
-                                              2: (u'Al Pacino', u'Robert De Niro', u'Robert Duvall'),
-                                              3: (u'Christian Bale', u'Heath Ledger', u'Aaron Eckhart'),
-                                              4: (u'John Travolta', u'Uma Thurman', u'Samuel L. Jackson')}})
-            ]
-            self.output = self.inputs[0].sort_values('title')
-            self.seqs = [[0]]
-            self.funcs = ['df.sort_values']
-
-    # allowing categorical
-    class sort_2(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'star_rating': {0: 9.3, 1: 9.2, 2: 9.1, 3: 9.0, 4: 8.9},
-                              'title': {0: 'The Shawshank Redemption',
-                                        1: 'The Godfather',
-                                        2: 'The Godfather: Part II',
-                                        3: 'The Dark Knight',
-                                        4: 'Pulp Fiction'},
-                              'content_rating': {0: 'R', 1: 'R', 2: 'R', 3: 'PG-13', 4: 'R'},
-                              'genre': {0: 'Crime', 1: 'Crime', 2: 'Crime', 3: 'Action', 4: 'Crime'},
-                              'duration': {0: 142, 1: 175, 2: 200, 3: 152, 4: 154},
-                              'actors_list': {0: (u'Tim Robbins', u'Morgan Freeman', u'Bob Gunton'),
-                                              1: (u'Marlon Brando', u'Al Pacino', u'James Caan'),
-                                              2: (u'Al Pacino', u'Robert De Niro', u'Robert Duvall'),
-                                              3: (u'Christian Bale', u'Heath Ledger', u'Aaron Eckhart'),
-                                              4: (u'John Travolta', u'Uma Thurman', u'Samuel L. Jackson')}})
-            ]
-            self.output = self.inputs[0].sort_values('title', ascending=False)
-            self.seqs = [[0]]
-            self.funcs = ['df.sort_values']
-
-    # allowing categorical
-    class sort_3(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'star_rating': {0: 9.3, 1: 9.2, 2: 9.1, 3: 9.0, 4: 8.9},
-                              'title': {0: 'The Shawshank Redemption',
-                                        1: 'The Godfather',
-                                        2: 'The Godfather: Part II',
-                                        3: 'The Dark Knight',
-                                        4: 'Pulp Fiction'},
-                              'content_rating': {0: 'R', 1: 'R', 2: 'R', 3: 'PG-13', 4: 'R'},
-                              'genre': {0: 'Crime', 1: 'Crime', 2: 'Crime', 3: 'Action', 4: 'Crime'},
-                              'duration': {0: 142, 1: 175, 2: 200, 3: 152, 4: 154},
-                              'actors_list': {0: (u'Tim Robbins', u'Morgan Freeman', u'Bob Gunton'),
-                                              1: (u'Marlon Brando', u'Al Pacino', u'James Caan'),
-                                              2: (u'Al Pacino', u'Robert De Niro', u'Robert Duvall'),
-                                              3: (u'Christian Bale', u'Heath Ledger', u'Aaron Eckhart'),
-                                              4: (u'John Travolta', u'Uma Thurman', u'Samuel L. Jackson')}})
-            ]
-            self.output = self.inputs[0].sort_values(['content_rating', 'duration'])
-            self.seqs = [[0]]
-            self.funcs = ['df.sort_values']
-
-    class drop_non_numeric(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame(
-                    {'country': {0: 'Afghanistan',
-                                 1: 'Albania',
-                                 2: 'Algeria',
-                                 3: 'Andorra',
-                                 4: 'Angola'},
-                     'beer_servings': {0: 0.1, 1: 89, 2: 25, 3: 245, 4: 217},
-                     'spirit_servings': {0: 0.2, 1: 132, 2: 0.4, 3: 138, 4: 57},
-                     'wine_servings': {0: 0.3, 1: 54, 2: 14, 3: 312, 4: 45},
-                     'total_litres_of_pure_alcohol': {0: 0.5, 1: 4.9, 2: 0.7, 3: 12.4, 4: 5.9},
-                     'continent': {0: 'Asia', 1: 'Europe', 2: 'Africa', 3: 'Europe', 4: 'Africa'}}
-                )
-            ]
-            self.output = self.inputs[0].select_dtypes(include=[np.number])
-            self.seqs = [[0]]
-            self.funcs = ['df.select_dtypes']
-
-    class mean_column(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame(
-                    {'country': {0: 'Afghanistan',
-                                 1: 'Albania',
-                                 2: 'Algeria',
-                                 3: 'Andorra',
-                                 4: 'Angola'},
-                     'beer_servings': {0: 0.1, 1: 89, 2: 25, 3: 245, 4: 217},
-                     'spirit_servings': {0: 0.2, 1: 132, 2: 0.4, 3: 138, 4: 57},
-                     'wine_servings': {0: 0.3, 1: 54, 2: 14, 3: 312, 4: 45},
-                     'total_litres_of_pure_alcohol': {0: 0.5, 1: 4.9, 2: 0.7, 3: 12.4, 4: 5.9},
-                     'continent': {0: 'Asia', 1: 'Europe', 2: 'Africa', 3: 'Europe', 4: 'Africa'}}
-                )
-            ]
-            self.output = self.inputs[0].mean()
-            self.seqs = [[0]]
-            self.funcs = ['df.mean']
-
-    class mean_row(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame(
-                    {'country': {0: 'Afghanistan',
-                                 1: 'Albania',
-                                 2: 'Algeria',
-                                 3: 'Andorra',
-                                 4: 'Angola'},
-                     'beer_servings': {0: 0.1, 1: 89, 2: 25, 3: 245, 4: 217},
-                     'spirit_servings': {0: 0.2, 1: 132, 2: 0.4, 3: 138, 4: 57},
-                     'wine_servings': {0: 0.3, 1: 54, 2: 14, 3: 312, 4: 45},
-                     'total_litres_of_pure_alcohol': {0: 0.5, 1: 4.9, 2: 0.7, 3: 12.4, 4: 5.9},
-                     'continent': {0: 'Asia', 1: 'Europe', 2: 'Africa', 3: 'Europe', 4: 'Africa'}}
-                )
-            ]
-            self.output = self.inputs[0].mean(axis=1)
-            self.seqs = [[0]]
-            self.funcs = ['df.mean']
-
-    ## Autopandas can't synthesize the solution given here
     class SO_11418192_depth2(Benchmark):
         def __init__(self):
             super().__init__()
@@ -626,7 +302,7 @@ NORM2\tWEIGHT MALAT W\t79.170\t118628.572692
             self.seqs = [[0, 1]]
 
     # http://stackoverflow.com/questions/34365578/dplyr-filtering-based-on-two-variables
-    class Rpaper_17_depth2(Benchmark):
+    class SO_34365578_depth2(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -642,44 +318,8 @@ NORM2\tWEIGHT MALAT W\t79.170\t118628.572692
             self.funcs = ['df.query', 'df.pivot_table']
             self.seqs = [[0, 1]]
 
-    class book_pivot_2_depth2(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame({'date': ['1959-03-31 00:00:00'] * 3 + ['1959-06-30 00:00:00'] * 3 + [
-                    '1959-09-30 00:00:00'] * 3 + ['1959-12-31 00:00:00'],
-                              'item': ['realgdp', 'infl', 'unemp', 'realgdp', 'infl', 'unemp', 'realgdp', 'infl',
-                                       'unemp', 'realgdp'],
-                              'value': [2710.349, 0.000, 5.800, 2778.801, 2.340, 5.100, 2775.488, 2.740, 5.300,
-                                        2785.204]}),
-            ]
-            self.output = self.inputs[0].set_index(['date', 'item']).unstack('item')
-            self.seqs = [[0, 1]]
-            self.funcs = ['df.set_index', 'df.unstack']
-
-    class group_mean_depth2(Benchmark):
-        def __init__(self):
-            super().__init__()
-            self.inputs = [
-                pd.DataFrame(
-                    {'country': {0: 'Afghanistan',
-                                 1: 'Albania',
-                                 2: 'Algeria',
-                                 3: 'Andorra',
-                                 4: 'Angola'},
-                     'beer_servings': {0: 0.1, 1: 89, 2: 25, 3: 245, 4: 217},
-                     'spirit_servings': {0: 0.2, 1: 132, 2: 0.5, 3: 138, 4: 57},
-                     'wine_servings': {0: 0.3, 1: 54, 2: 14, 3: 312, 4: 45},
-                     'total_litres_of_pure_alcohol': {0: 0.6, 1: 4.9, 2: 0.7, 3: 12.4, 4: 5.9},
-                     'continent': {0: 'Asia', 1: 'Europe', 2: 'Africa', 3: 'Europe', 4: 'Africa'}}
-                )
-            ]
-            self.output = self.inputs[0].groupby('continent').mean()
-            self.seqs = [[0, 1]]
-            self.funcs = ['df.groupby', 'dfgroupby.mean']
-
-    # https://stackoverflow.com/questions/10982266
-    class SO_10982266(Benchmark):
+      # https://stackoverflow.com/questions/10982266
+    class SO_10982266_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [pd.DataFrame(
@@ -709,7 +349,7 @@ NORM2\tWEIGHT MALAT W\t79.170\t118628.572692
             #              columns=['time', 'price', 'volume'])
 
     # https://stackoverflow.com/questions/11811392
-    class SO_11811392(Benchmark):
+    class SO_11811392_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [pd.DataFrame(
@@ -723,7 +363,7 @@ NORM2\tWEIGHT MALAT W\t79.170\t118628.572692
             self.seqs = [[0, 1, 2]]
 
     # https://stackoverflow.com/questions/49581206
-    class SO_49581206(Benchmark):
+    class SO_49581206_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -736,7 +376,7 @@ NORM2\tWEIGHT MALAT W\t79.170\t118628.572692
             self.seqs = [[0, 1, 2]]
 
     # https://stackoverflow.com/questions/12065885
-    class SO_12065885(Benchmark):
+    class SO_12065885_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -754,7 +394,7 @@ NORM2\tWEIGHT MALAT W\t79.170\t118628.572692
             self.seqs = [[2, 0, 1]]
 
     # https://stackoverflow.com/questions/13576164
-    class SO_13576164(Benchmark):
+    class SO_13576164_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -772,7 +412,7 @@ NORM2\tWEIGHT MALAT W\t79.170\t118628.572692
             self.seqs = [[0, 1, 2]]
 
     # https://stackoverflow.com/questions/14023037
-    class SO_14023037(Benchmark):
+    class SO_14023037_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -791,7 +431,7 @@ NORM2\tWEIGHT MALAT W\t79.170\t118628.572692
             self.seqs = [[0, 1, 2]]
 
     # https://stackoverflow.com/questions/53762029/pandas-groupby-and-cumsum-on-a-column
-    class SO_53762029(Benchmark):
+    class SO_53762029_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             data = """
@@ -812,7 +452,7 @@ doc_created_month   doc_created_year    speciality      doc_id_count
 
             # http://stackoverflow.com/questions/21982987/mean-per-group-in-a-data-frame
 
-    class Rpaper_8(Benchmark):
+    class SO_21982987_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -825,7 +465,7 @@ doc_created_month   doc_created_year    speciality      doc_id_count
             self.funcs = ['df.groupby', 'dfgroupby.mean', 'df.drop']
 
     # http://stackoverflow.com/questions/39656670/pivot-table-on-r-using-dplyr-or-tidyr
-    class Rpaper_22(Benchmark):
+    class SO_39656670_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
@@ -840,7 +480,7 @@ doc_created_month   doc_created_year    speciality      doc_id_count
             self.funcs = ['df.melt', 'df.groupby', 'dfgroupby.mean']
 
     # http://stackoverflow.com/questions/23321300/efficient-method-to-filter-and-add-based-on-certain-conditions-3-conditions-in
-    class Rpaper_72(Benchmark):
+    class SO_23321300_depth3(Benchmark):
         def __init__(self):
             super().__init__()
             self.inputs = [
