@@ -1,11 +1,16 @@
+import _thread
 import argparse
 import inspect
 import itertools
 import pickle
 import random
+import signal
 import sys
+import threading
+import time
 from functools import reduce
 import importlib
+from concurrent.futures import TimeoutError
 
 import pebble
 
@@ -99,8 +104,50 @@ def grouper(sizes, iterable):
     yield from itertools.zip_longest(*args)
 
 
-def call_with_timeout(func, *args, timeout=3):
+def call_with_timeout_multiprocess(func, *args, timeout=3):
     pool = pebble.ProcessPool(max_workers=1)
     with pool:
         future = pool.schedule(func, args=args, timeout=timeout)
         return future.result()
+
+
+class SignalTimeout:
+    def __init__(self, seconds=1, error_message='Timeout'):
+        self.seconds = seconds
+        self.error_message = error_message
+
+    def handle_timeout(self, signum, frame):
+        raise TimeoutError(self.error_message)
+
+    def __enter__(self):
+        signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.seconds)
+
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)
+
+
+def quit_function():
+    sys.stderr.flush()  # Python 3 stderr is likely buffered.
+    while True:
+        if threading.main_thread().__custom_threading_interrupted is True:
+            break
+
+        _thread.interrupt_main()  # raises KeyboardInterrupt
+        time.sleep(5)
+
+
+def ThreadingTimeout(s, fn, *args, **kwargs):
+    #  Use some monkey-patching and no thread-level concurrency to our advantage
+    #  Can't just use is_alive() as the main thread is allowed to work afterwords
+    threading.main_thread().__custom_threading_interrupted = False
+    timer = threading.Timer(s, quit_function)
+    timer.start()
+    try:
+        result = fn(*args, **kwargs)
+    finally:
+        threading.main_thread().__custom_threading_interrupted = True
+        timer.cancel()
+
+    return result
+

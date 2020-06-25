@@ -71,6 +71,8 @@ class RelationGraph:
             except:
                 pass
 
+            return [convert(obj, SingleNodeCollection, type_str='callable')]
+
         elif isinstance(obj, list):
             if all(map(np.isscalar, obj)):
                 return [convert(pd.DataFrame(obj), SizedIterableNodeCollection, type_str='list')]

@@ -15,6 +15,14 @@ class ModelSelectInterface(GGNNInterface):
         pass
 
 
+class ModelProductInterface(GGNNInterface):
+    def get_model(self):
+        return ModelSelect()
+
+    def debug_graph(self, graph: RelationGraph):
+        pass
+
+
 class ModelChoiceInterface(GGNNInterface):
     def get_model(self):
         return ModelChoice()

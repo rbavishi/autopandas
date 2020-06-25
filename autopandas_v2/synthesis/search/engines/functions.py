@@ -9,6 +9,7 @@ use the pausing/restarting of argument engines to revisit a function sequence la
 """
 import itertools
 from abc import ABC, abstractmethod
+from queue import PriorityQueue
 from typing import Generator, List, Type, Set, Dict
 
 import autopandas_v2.synthesis.search.engines.arguments as arg_engines
@@ -16,10 +17,14 @@ from autopandas_v2.generators.base import BaseGenerator
 from autopandas_v2.generators.utils import load_generators
 from autopandas_v2.iospecs import IOSpec, EngineSpec
 from autopandas_v2.ml.inference.interfaces import RelGraphInterface
+from autopandas_v2.ml.inference.model_stores import ModelStore
 from autopandas_v2.synthesis.search.results.programs import Program, FunctionCall
 from autopandas_v2.synthesis.search.stats.collectors import StatsCollector
+from autopandas_v2.utils import logger
 from autopandas_v2.utils.checker import Checker
 from autopandas_v2.utils.cli import ArgNamespace
+from autopandas_v2.ml.featurization.featurizer import RelationGraph
+from autopandas_v2.ml.featurization.options import GraphOptions
 
 
 class BaseEngine(ABC):
@@ -36,6 +41,7 @@ class BaseEngine(ABC):
         self.argument_engine = cmd_args.get('arg_engine', 'bfs')
         self.arg_model_dir = cmd_args.get('arg_model_dir', None)
         self.arg_top_k = cmd_args.get('top_k_args', None)
+        self.model_store: ModelStore = None
 
         #  Knobs
         self.collect_stats = cmd_args.get('collect_stats', True)
@@ -44,21 +50,34 @@ class BaseEngine(ABC):
 
         self.stats = None if not self.collect_stats else StatsCollector()
 
-    def get_arg_engine(self, func_seq: List[BaseGenerator]) -> arg_engines.BaseArgEngine:
+    def get_arg_engine(self, func_seq: List[BaseGenerator], **kwargs) -> arg_engines.BaseArgEngine:
         if self.argument_engine == 'bfs':
-            return arg_engines.BreadthFirstEngine(func_seq, self.cmd_args, stats=self.stats)
+            return arg_engines.BreadthFirstEngine(func_seq, self.cmd_args, stats=self.stats, **kwargs)
 
         elif self.argument_engine == 'beam-search':
             return arg_engines.BeamSearchEngine(func_seq, model_path=self.arg_model_dir,
                                                 cmd_args=self.cmd_args, stats=self.stats,
-                                                k=self.arg_top_k)
+                                                k=self.arg_top_k, **kwargs)
 
-    def report_solution(self, programs: List[Set[FunctionCall]]):
+    def report_solution(self, programs: List[Set[FunctionCall]], **kwargs):
         for call_seq in itertools.product(*programs):
             program = Program(list(call_seq))
             self.solutions.append(program)
             if not self.silent:
                 print(program)
+
+    def typecheck(self, func_seq: List[BaseGenerator], target_output):
+        if all((not i.hasinstance(target_output)) for i in func_seq[-1].out_types):
+            return False
+
+        consumers = set()
+        for depth, func in enumerate(func_seq):
+            for d, f in enumerate(func_seq[depth+1:], depth+1):
+                for idx, inp in enumerate(f.inp_types):
+                    if any(inp.is_superclass_of(i) for i in func.out_types):
+                        consumers.add("{}_{}".format(d, idx))
+
+        return len(consumers) >= (len(func_seq) - 1)
 
     @abstractmethod
     def iter_func_seqs(self) -> Generator[List[BaseGenerator], None, None]:
@@ -120,7 +139,11 @@ class NeuralEngine(BaseEngine):
 
     def iter_func_seqs(self) -> Generator[List[BaseGenerator], None, None]:
         generators: Dict[str, BaseGenerator] = load_generators()
-        model = RelGraphInterface.from_model_dir(self.model_path)
+        if self.model_store is None or 'function-model' not in self.model_store:
+            model = ModelStore({'function-model': self.model_path})
+        else:
+            model = self.model_store
+
         if self.use_old_featurization:
             from autopandas_v2.ml.featurization_old.featurizer import RelationGraph
             from autopandas_v2.ml.featurization_old.options import GraphOptions
@@ -133,12 +156,17 @@ class NeuralEngine(BaseEngine):
         graph.from_input_output(self.iospec.inputs, self.iospec.output)
         encoding = graph.get_encoding(get_mapping=False)
 
-        str_seqs, probs = list(zip(*model.predict_graphs([encoding], top_k=self.top_k)[0]))
+        str_seqs, probs = list(zip(*model.predict_graphs('function-model', [encoding], top_k=self.top_k)[0]))
         str_seqs = [i.split(':') for i in str_seqs]
         model.close()
 
         for str_seq in str_seqs:
-            yield [generators[i] for i in str_seq]
+            result = [generators[i] for i in str_seq]
+            if self.typecheck(result, self.iospec.output):
+                logger.info(str_seq)
+                yield result
+            else:
+                logger.warn("Skipping", str_seq)
 
     def search(self) -> bool:
         """
@@ -155,10 +183,11 @@ class NeuralEngine(BaseEngine):
                 self.stats.num_seqs_explored += 1
 
             self.engine_spec = EngineSpec(self.iospec.inputs, self.iospec.output, max_depth=len(func_seq))
-            arg_engine = self.get_arg_engine(func_seq)
+            arg_engine = self.get_arg_engine(func_seq, model_store=self.model_store)
             for result, programs in arg_engine.run(self.engine_spec):
                 if checker(target_output, result):
-                    self.report_solution(programs)
+                    self.report_solution(programs, output=target_output,
+                                         intermediates=self.engine_spec.intermediates[:])
                     if self.stop_first_solution:
                         return True
 

@@ -3,6 +3,7 @@ import time
 from autopandas_v2.evaluation.benchmarks.base import Benchmark
 from autopandas_v2.iospecs import IOSpec
 from autopandas_v2.ml.inference.interfaces import RelGraphInterface
+from autopandas_v2.ml.inference.model_stores import ModelStore
 from autopandas_v2.synthesis.search.engines.functions import BFSEngine, NeuralEngine
 from autopandas_v2.utils.cli import ArgNamespace
 
@@ -82,11 +83,12 @@ class FunctionModelEvaluator:
 
 
 class NeuralSynthesisEvaluator:
-    def __init__(self, benchmark: Benchmark, cmd_args: ArgNamespace):
+    def __init__(self, benchmark: Benchmark, cmd_args: ArgNamespace, model_store: ModelStore = None):
         self.benchmark = benchmark
         self.cmd_args = cmd_args
         self.function_model_dir = self.cmd_args.function_model_dir
         self.arg_model_dir = self.cmd_args.arg_model_dir
+        self.model_store = model_store
 
     def run(self, qual_name: str):
         inputs, output, funcs, seqs = self.benchmark.unwrap()
@@ -95,22 +97,29 @@ class NeuralSynthesisEvaluator:
         iospec.funcs = funcs
         iospec.seqs = seqs
 
-        engine: NeuralEngine = NeuralEngine(iospec, self.function_model_dir, top_k=self.cmd_args.top_k_function)
-        engine.max_depth = max(len(i) for i in seqs)
-        engine.stop_first_solution = True
-        engine.use_spec_funcs = True
-        engine.use_spec_seqs = True
-        engine.argument_engine = 'beam-search'
-        engine.arg_model_dir = self.arg_model_dir
-        engine.arg_top_k = self.cmd_args.top_k_args
-        engine.use_old_featurization = self.cmd_args.use_old_featurization
+        if self.cmd_args.engine == 'neural':
+            engine: NeuralEngine = NeuralEngine(iospec, self.function_model_dir, top_k=self.cmd_args.top_k_function)
+            engine.max_depth = max(len(i) for i in seqs)
+            engine.stop_first_solution = True
+            engine.use_spec_funcs = True
+            engine.use_spec_seqs = True
+            engine.argument_engine = 'beam-search'
+            engine.arg_model_dir = self.arg_model_dir
+            engine.arg_top_k = self.cmd_args.top_k_args
+            engine.use_old_featurization = self.cmd_args.use_old_featurization
+            engine.model_store = self.model_store
+
+        else:
+            raise Exception("Engine {} not recognized".format(self.cmd_args.engine))
 
         start_time = time.time()
         solution_found = engine.search()
         return {
             'benchmark': qual_name,
+            'ground_truth_depth': min(len(i) for i in seqs),
             'num_seqs_explored': engine.stats.num_seqs_explored,
             'num_candidates_generated': dict(engine.stats.num_cands_generated),
             'solution_found': solution_found,
+            'solution': repr(str(engine.solutions[0])) if solution_found else '',
             'time': time.time() - start_time
         }

@@ -10,6 +10,7 @@ from autopandas_v2.generators.compilation.ir.signatures import ISignature
 from autopandas_v2.utils import astutils
 from autopandas_v2.utils.cli import ArgNamespace
 from autopandas_v2.utils.graphs import topological_ordering
+from autopandas_v2.utils.types import DType
 
 
 def parse_gen_from_ast(gen_ast: ast.FunctionDef, namespace: str, gen_id: str,
@@ -32,6 +33,7 @@ def parse_gen_from_ast(gen_ast: ast.FunctionDef, namespace: str, gen_id: str,
         arg_irs: Dict[str, IArg] = parent.arg_irs.copy()
         arg_irs.update(get_arg_irs(gen_ast, signature, sym_to_ast_def_map))
         representation: str = parent.representation
+        inp_types, out_types = parent.inp_types, parent.out_types
 
     else:
         signature: ISignature = get_signature(gen_ast)
@@ -40,8 +42,13 @@ def parse_gen_from_ast(gen_ast: ast.FunctionDef, namespace: str, gen_id: str,
 
         inheritance: Optional[str] = get_inheritance(gen_ast)
         if inheritance is not None:
-            arg_irs.update({k: v for k, v in parse_cache[inheritance].arg_irs.items()
+            inherited_parsed = parse_cache[inheritance]
+            arg_irs.update({k: v for k, v in inherited_parsed.arg_irs.items()
                             if (k not in arg_irs) and (k in signature.arg_names)})
+            inp_types, out_types = inherited_parsed.inp_types, inherited_parsed.out_types
+
+        else:
+            inp_types, out_types = get_inp_out_types(gen_ast)
 
         arity: int = get_arity(gen_ast, arg_irs)
         representation: str = get_representation(gen_id, gen_ast, signature, active_args=list(arg_irs.keys()))
@@ -54,7 +61,7 @@ def parse_gen_from_ast(gen_ast: ast.FunctionDef, namespace: str, gen_id: str,
     #  Construct the IGenerator object
     return IGenerator(namespace=namespace, name=gen_id, sig=signature,
                       arg_irs=arg_irs, enum_order=enum_order, target=target, arity=arity,
-                      representation=representation)
+                      representation=representation, inp_types=inp_types, out_types=out_types)
 
 
 def get_signature(gen_ast: ast.FunctionDef) -> ISignature:
@@ -163,6 +170,24 @@ def get_arity(gen_ast: ast.FunctionDef, arg_irs: Dict[str, IArg]) -> int:
         arity += any(contains_ext(i) for i in [arg_ir.expr] + arg_ir.defs)
 
     return arity
+
+
+def get_inp_out_types(gen_ast: ast.FunctionDef) -> Tuple[str, str]:
+    inp_types: str = None
+    out_types: str = None
+    for decorator in getattr(gen_ast, 'decorator_list', []):
+        if isinstance(decorator, ast.Call) and decorator.func.id == 'inp_types':
+            if len(decorator.args) == 1 and isinstance(decorator.args[0], ast.List):
+                inp_types = astutils.to_source(decorator.args[0])
+
+        elif isinstance(decorator, ast.Call) and decorator.func.id == 'out_types':
+            if len(decorator.args) == 1 and isinstance(decorator.args[0], ast.List):
+                out_types = astutils.to_source(decorator.args[0])
+
+    if inp_types is None or out_types is None:
+        raise Exception("Could not infer input/output types")
+
+    return inp_types, out_types
 
 
 def get_tiebreaker(arg_irs: Dict[str, IArg]) -> Dict[str, Tuple[int, int]]:

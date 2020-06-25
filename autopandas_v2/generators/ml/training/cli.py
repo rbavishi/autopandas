@@ -94,43 +94,6 @@ def parse_args(parser: ArgumentParser):
         parser.add_argument("--num-training-points", default=-1, type=int,
                             help="Number of training points to use. Default : -1 (all)")
 
-    @subcommand(parser, cmd='train-next-func', help='Perform Training for Predicting Next Function',
-                dest='training_subcommand', inherit_from=[parser_common])
-    def cmd_train_functions(parser):
-        parser.add_argument("modeldir", type=str,
-                            help="Path to the directory to save the model in")
-
-        parser.add_argument("--config", type=str, default=None,
-                            help="File containing hyper-parameter configuration (JSON format)")
-        parser.add_argument("--config-str", type=str, default=None,
-                            help="String containing hyper-parameter configuration (JSON format)")
-        parser.add_argument("--use-memory", default=False, action="store_true",
-                            help="Store all processed graphs in memory. Fastest processing, but can easily"
-                                 "run out of memory")
-
-        parser.add_argument("--use-disk", default=False, action="store_true",
-                            help="Use disk for storing processed graphs as opposed to computing them every time"
-                                 "Speeds things up a lot but can take a lot of space")
-
-        parser.add_argument("--train", default=None, type=str, required=True,
-                            help="Path to train file")
-        parser.add_argument("--valid", default=None, type=str, required=True,
-                            help="Path to validation file")
-        parser.add_argument("--restore-file", default=None, type=str,
-                            help="File to restore weights from")
-        parser.add_argument("--restore-params", default=None, type=str,
-                            help="File to restore params from (pkl)")
-        parser.add_argument("--freeze-graph-model", default=False, action="store_true",
-                            help="Freeze graph model components")
-        parser.add_argument("--load-shuffle", default=False, action="store_true",
-                            help="Shuffle data when loading. Useful when passing num-training-points")
-        parser.add_argument("--num-epochs", default=100, type=int,
-                            help="Maximum number of epochs to run training for")
-        parser.add_argument("--patience", default=25, type=int,
-                            help="Maximum number of epochs to wait for validation accuracy to increase")
-        parser.add_argument("--num-training-points", default=-1, type=int,
-                            help="Number of training points to use. Default : -1 (all)")
-
     @subcommand(parser, cmd='analyze', help='Perform Analysis of Model', dest='training_subcommand')
     def cmd_analyze(parser):
         parser.add_argument("modeldir", type=str,
@@ -143,6 +106,15 @@ def parse_args(parser: ArgumentParser):
                             help="Path to test")
         parser.add_argument("--top-k", default=1, type=int, required=True,
                             help="Top-k")
+
+        parser.add_argument("--use-memory", default=False, action="store_true",
+                            help="Store all processed graphs in memory. Fastest processing, but can easily"
+                                 "run out of memory")
+
+        parser.add_argument("--use-disk", default=False, action="store_true",
+                            help="Use disk for storing processed graphs as opposed to computing them every time"
+                                 "Speeds things up a lot but can take a lot of space")
+
         parser.add_argument("--include", nargs="+", type=str, default=None,
                             help="fn:identifier tuples to include in testing list")
 
@@ -374,9 +346,6 @@ def run(cmd_args: ArgNamespace):
 
     elif cmd_args.training_subcommand == 'train-functions':
         run_training_functions(cmd_args)
-
-    elif cmd_args.training_subcommand == 'train-next-func':
-        run_training_next_function(cmd_args)
 
     elif cmd_args.training_subcommand == 'analyze':
         run_analysis(cmd_args)

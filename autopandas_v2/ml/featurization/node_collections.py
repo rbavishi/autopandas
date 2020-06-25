@@ -173,7 +173,7 @@ class DataFrameNodeCollection(GraphNodeCollection):
                 self.add_value(val, node)
                 index_nodes.append(node)
 
-            return [index_nodes]
+            return np.transpose([index_nodes]).tolist()
 
     def add_nodes(self):
         cells = self.obj.values
