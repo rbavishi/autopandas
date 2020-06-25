@@ -18,7 +18,9 @@ The paper can be accessed [here](https://dl.acm.org/citation.cfm?doid=3366395.33
   
   `autopandas_v2 generators compile-randomized`
 
-## Running Evaluation
+## Reproducing Evaluation
+
+* Switch to the snapshot at [https://github.com/rbavishi/atlas/tree/oopsla19-snapshot](https://github.com/rbavishi/atlas/tree/oopsla19-snapshot)
 
 * Download pre-trained models [here](https://drive.google.com/drive/folders/1XRZDAP0HSegI97jzNJSFWQUl4HOf4U7x?usp=sharing) and extract the zip files. 
 There should be two - (1) `model_pandas_generators` and (2) `model_pandas_functions`. 
@@ -30,6 +32,9 @@ Note that execution times may differ across runs. We have observed non-trivial d
 different predictions by the models which have sort of a cascading effect. However, the benchmarks solved within the time-limit and the number of programs explored should be similar.
 
   `TF_CPP_MIN_LOG_LEVEL=3 autopandas_v2 evaluate synthesis "PandasBenchmarks.*" model_pandas_generators model_pandas_functions pandas_synthesis_results.csv --top-k-args 1000 --use-old-featurization --timeout 1200`
+  
+* Note that the `--use-old-featurization` is important only for the snapshot. If the models have been retrained, 
+you should skip this option (after switching to the latest commit, of course).
   
 ## Creating Data and Training Generators
 
