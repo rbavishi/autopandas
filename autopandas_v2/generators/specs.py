@@ -221,6 +221,8 @@ class df:
     @signature('DataFrame.at.__getitem__(self, key)')
     @target(lambda self, key: self.at[key])
     @inp_types([DType(pd.DataFrame)])
+    @out_types([DType(object)])
+    @representation('{self}.at[{key}]')
     def at_getitem():
         def arg_key(v_self: pd.DataFrame):
             indices = v_self.index
@@ -234,6 +236,8 @@ class df:
     @signature('DataFrame.iat.__getitem__(self, key)')
     @target(lambda self, key: self.iat[key])
     @inp_types([DType(pd.DataFrame)])
+    @out_types([DType(object)])
+    @representation('{self}.iat[{key}]')
     def iat_getitem():
         def arg_key(v_self: pd.DataFrame):
             indices = range(len(v_self.index))
@@ -248,6 +252,7 @@ class df:
     @target(lambda self, key: self.loc[key])
     @inp_types([DType(pd.DataFrame)])
     @out_types([DType(pd.DataFrame), DType(pd.Series)])
+    @representation('{self}.loc[{key}]')
     def loc_getitem():
 
         def get_slice_or_list(o_val: List, i_val: List):
@@ -295,6 +300,7 @@ class df:
     @target(lambda self, key: self.iloc[key])
     @inp_types([DType(pd.DataFrame)])
     @out_types([DType(pd.DataFrame), DType(pd.Series)])
+    @representation('{self}.iloc[{key}]')
     def iloc_getitem():
 
         def get_slice_or_list(o_val: List, i_val: List):
@@ -440,6 +446,7 @@ class df:
     @target(pd.DataFrame.__getitem__)
     @inp_types([DType(pd.DataFrame)])
     @out_types([DType(pd.DataFrame), DType(pd.Series)])
+    @representation('{self}[{key}]')
     def __getitem__():
         def arg_key(v_self: pd.DataFrame):
             lengths = None
@@ -892,6 +899,7 @@ class df:
     @signature('DataFrame.eval(self, expr, inplace=False)')
     @target(pd.DataFrame.eval)
     @inp_types([DType(pd.DataFrame)])
+    @out_types([DType(object)])
     def eval():
         _self = Ext(DType(pd.DataFrame))
         _expr = Ext(DType(str))
@@ -1712,7 +1720,7 @@ class df:
     @signature("DataFrame.merge(self, right, how='inner', on=None, left_on=None, right_on=None, left_index=False, "
                "right_index=False, sort=False, suffixes=('_x', '_y'), copy=True, indicator=False, validate=None)")
     @target(pd.DataFrame.merge)
-    @inp_types([DType(pd.DataFrame)])
+    @inp_types([DType(pd.DataFrame), DType(pd.DataFrame)])
     @out_types([DType(pd.DataFrame)])
     def merge():
         def arg_on(v_self: pd.DataFrame, v_right: pd.DataFrame):
@@ -1882,6 +1890,8 @@ class pandas:
     @signature("pd.concat(objs, axis=0, join='outer', join_axes=None, ignore_index=False, keys=None, levels=None, "
                "names=None, verify_integrity=False, sort=None, copy=True) ")
     @target(pd.pandas.concat)
+    @inp_types([DType(pd.DataFrame), DType(pd.DataFrame)])
+    @out_types([DType(pd.DataFrame)])
     def concat():
 
         def arg_objs():

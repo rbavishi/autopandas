@@ -80,7 +80,7 @@ class SparseGGNN(BaseGGNN):
         return {"adjacency_lists": adjacency_lists,
                 "num_incoming_edge_per_type": num_incoming_edge_per_type,
                 "init": self.to_one_hot(graph["node_features"], self.params['annotation_size']),
-                "label": self.params['mapping'][graph.get("label", 'UNK')]}
+                "label": self.params['mapping'].get(graph.get("label", 'UNK'), len(self.params['mapping']))}
 
     def graph_to_adjacency_lists(self, graph) -> Tuple[Dict[int, np.ndarray], Dict[int, Dict[int, int]]]:
         adj_lists = collections.defaultdict(list)

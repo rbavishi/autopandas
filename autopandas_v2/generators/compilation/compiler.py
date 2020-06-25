@@ -144,6 +144,8 @@ def compile_gen(igen: IGenerator) -> ast.ClassDef:
     init_method.body.append(astutils.parse("self.qual_name = {}".format(repr(qual_name))))
     init_method.body.append(astutils.parse("self.name = {}".format(repr(igen.name))))
     init_method.body.append(astutils.parse("self.arity = {}".format(igen.arity)))
+    init_method.body.append(astutils.parse("self.inp_types = {}".format(igen.inp_types)))
+    init_method.body.append(astutils.parse("self.out_types = {}".format(igen.out_types)))
 
     init_method.body.append(astutils.parse("self.representation = {}".format(repr(igen.representation))))
     gen_class.body.append(init_method)

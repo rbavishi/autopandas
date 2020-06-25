@@ -301,6 +301,7 @@ class ModelOrderedSubsets(BaseSmartGenGGNN):
 
     def infer(self, raw_graph_data, **kwargs):
         graphs = [self.process_raw_graph(g) for g in raw_graph_data]
+        graphs = [g for g in graphs if g is not None]
 
         batch_iterator = utils.ThreadedIterator(self.make_minibatch_iterator(graphs, is_training=False),
                                                 max_queue_size=50)

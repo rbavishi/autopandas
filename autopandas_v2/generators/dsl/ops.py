@@ -9,6 +9,7 @@ from autopandas_v2.generators.ml.featurization.featurizers import RelationGraphS
 from autopandas_v2.generators.trackers import OpTracker
 from autopandas_v2.iospecs import SearchSpec, ArgTrainingSpec
 from autopandas_v2.ml.inference.interfaces import RelGraphInterface
+from autopandas_v2.ml.inference.model_stores import ModelStore
 from autopandas_v2.utils import logger
 from autopandas_v2.utils.checker import Checker
 from autopandas_v2.utils.exceptions import AutoPandasInversionFailedException
@@ -74,7 +75,7 @@ def Select(domain: Collection[Any], spec: SearchSpec = None, depth: int = 1, mod
            tracker: OpTracker = None, arg_name: str = None, identifier: str = None, **kwargs):
     label = 'select_' + arg_name + '_' + identifier
 
-    if mode == 'exhaustive' or (mode == 'inference' and label not in kwargs['model_store']):
+    if mode == 'exhaustive' or (mode == 'inference' and (kwargs['func'], label) not in kwargs['model_store']):
         if mode == 'inference':
             logger.warn("Did not find model for {}.{}".format(kwargs['func'], label), use_cache=True)
 
@@ -82,7 +83,8 @@ def Select(domain: Collection[Any], spec: SearchSpec = None, depth: int = 1, mod
 
     elif mode == 'training-data':
         #  The problem with Select is that many generators use the dynamic nature of Select to demonstrate
-        #  different runs for the same I/O example in training/enumeration mode. 
+        #  different runs for the same I/O example in training/enumeration mode. For example, the gather function
+        #  either uses a random string or uses one of the output values in the new columns it takes as arguments.
         #  Since the output is not available during training-data generation, the value passed to Select in both
         #  modes will be different. Hence we cannot rely on simply storing the idx. So we store the value
         #  explicitly.
@@ -130,6 +132,8 @@ def Select(domain: Collection[Any], spec: SearchSpec = None, depth: int = 1, mod
         else:
             #  So that didn't work out... There was no value in the domain that was equal to the target val.
             #  This can happen when random column names are generated. 
+            #  Thankfully we stuck to a convention that they be prefixed with "AUTOPANDAS_", so we can check
+            #  if that is the case and then recover accordingly
 
             if isinstance(target_val, str) and target_val.startswith("AUTOPANDAS_"):
                 if len(randoms) > 0:
@@ -153,7 +157,8 @@ def Select(domain: Collection[Any], spec: SearchSpec = None, depth: int = 1, mod
         return
 
     elif mode == 'inference':
-        model_store: Dict[str, RelGraphInterface] = kwargs['model_store']
+        model_store: ModelStore = kwargs['model_store']
+        func_name = kwargs['func']
         prob_store: Dict[str, float] = kwargs['prob_store']
         externals: Dict[str, Any] = kwargs['externals']
         domain = list(domain)
@@ -169,7 +174,7 @@ def Select(domain: Collection[Any], spec: SearchSpec = None, depth: int = 1, mod
         encoding['op_label'] = label
         encoding['domain_raw'] = domain
         #  The inference in Select returns a list of tuples (probability, domain_idx)
-        inferred: List[Tuple[float, int]] = sorted(model_store[label].predict_graphs([encoding])[0],
+        inferred: List[Tuple[float, int]] = sorted(model_store.predict_graphs((func_name, label), [encoding])[0],
                                                    key=lambda x: -x[0])
         for prob, encoding_node_idx in inferred:
             domain_idx = reverse_mapping[encoding_node_idx]
@@ -181,7 +186,7 @@ def Choice(*choices: Any, spec: SearchSpec = None, depth: int = 1, mode: str = N
            arg_name: str = None, identifier: str = None, **kwargs):
     label = 'choice_' + arg_name + '_' + identifier
 
-    if mode == 'exhaustive' or (mode == 'inference' and label not in kwargs['model_store']):
+    if mode == 'exhaustive' or (mode == 'inference' and (kwargs['func'], label) not in kwargs['model_store']):
         if mode == 'inference':
             logger.warn("Did not find model for {}.{}".format(kwargs['func'], label), use_cache=True)
 
@@ -217,7 +222,8 @@ def Choice(*choices: Any, spec: SearchSpec = None, depth: int = 1, mode: str = N
         raise NotImplementedError("Best-effort procedure not implemented for Choice")
 
     elif mode == 'inference':
-        model_store: Dict[str, RelGraphInterface] = kwargs['model_store']
+        model_store: ModelStore = kwargs['model_store']
+        func_name = kwargs['func']
         prob_store: Dict[str, float] = kwargs['prob_store']
         externals: Dict[str, Any] = kwargs['externals']
         choices = list(choices)
@@ -228,7 +234,7 @@ def Choice(*choices: Any, spec: SearchSpec = None, depth: int = 1, mode: str = N
         encoding['op_label'] = label
         encoding['choices_raw'] = choices
         #  The inference in Choice returns a list of tuples (probability, choice_idx)
-        inferred: List[Tuple[float, int]] = sorted(model_store[label].predict_graphs([encoding])[0],
+        inferred: List[Tuple[float, int]] = sorted(model_store.predict_graphs((func_name, label), [encoding])[0],
                                                    key=lambda x: -x[0])
 
         for prob, choice_idx in inferred:
@@ -240,7 +246,7 @@ def Chain(*ops: Any, spec: SearchSpec = None, depth: int = 1, mode: str = None, 
           arg_name: str = None, identifier: str = None, **kwargs):
     label = 'chain_' + arg_name + '_' + identifier
 
-    if mode == 'exhaustive' or (mode == 'inference' and label not in kwargs['model_store']):
+    if mode == 'exhaustive' or (mode == 'inference' and (kwargs['func'], label) not in kwargs['model_store']):
         if mode == 'inference':
             logger.warn("Did not find model for {}.{}".format(kwargs['func'], label), use_cache=True)
 
@@ -287,7 +293,8 @@ def Chain(*ops: Any, spec: SearchSpec = None, depth: int = 1, mode: str = None, 
         raise NotImplementedError("Best-effort procedure not implemented for Chain")
 
     elif mode == 'inference':
-        model_store: Dict[str, RelGraphInterface] = kwargs['model_store']
+        model_store: ModelStore = kwargs['model_store']
+        func_name = kwargs['func']
         prob_store: Dict[str, float] = kwargs['prob_store']
         externals: Dict[str, Any] = kwargs['externals']
 
@@ -298,7 +305,7 @@ def Chain(*ops: Any, spec: SearchSpec = None, depth: int = 1, mode: str = None, 
         encoding['op_label'] = label
 
         #  The inference in Chain returns a list of tuples (probability, choice_idx)
-        inferred: List[Tuple[float, int]] = sorted(model_store[label].predict_graphs([encoding])[0],
+        inferred: List[Tuple[float, int]] = sorted(model_store.predict_graphs((func_name, label), [encoding])[0],
                                                    key=lambda x: -x[0])
         for prob, idx in inferred:
             prob_store[label] = prob
@@ -314,7 +321,7 @@ def Subsets(vals: Collection[Any], lengths: Iterable[Any] = None, lists: bool = 
             arg_name: str = None, identifier: str = None, **kwargs):
     label = 'subsets_' + arg_name + '_' + identifier
 
-    if mode == 'exhaustive' or (mode == 'inference' and label not in kwargs['model_store']):
+    if mode == 'exhaustive' or (mode == 'inference' and (kwargs['func'], label) not in kwargs['model_store']):
         if mode == 'inference':
             logger.warn("Did not find model for {}.{}".format(kwargs['func'], label), use_cache=True)
 
@@ -391,8 +398,10 @@ def Subsets(vals: Collection[Any], lengths: Iterable[Any] = None, lists: bool = 
                     subset.append(val)
                     break
             else:
-                # So that didn't work out... There was no value in the domain that was equal to the target val.
-                # This can happen when random column names are generated. 
+                #  So that didn't work out... There was no value in the domain that was equal to the target val.
+                #  This can happen when random column names are generated. 
+                #  Thankfully we stuck to a convention that they be prefixed with "AUTOPANDAS_", so we can check
+                #  if that is the case and then recover accordingly
 
                 if isinstance(target_val, str) and target_val.startswith("AUTOPANDAS_"):
                     if len(randoms) > 0:
@@ -425,7 +434,8 @@ def Subsets(vals: Collection[Any], lengths: Iterable[Any] = None, lists: bool = 
         return
 
     elif mode == 'inference':
-        model_store: Dict[str, RelGraphInterface] = kwargs['model_store']
+        model_store: ModelStore = kwargs['model_store']
+        func_name = kwargs['func']
         prob_store: Dict[str, float] = kwargs['prob_store']
         externals: Dict[str, Any] = kwargs['externals']
         beam_search_k = kwargs['beam_search_k']
@@ -449,8 +459,8 @@ def Subsets(vals: Collection[Any], lengths: Iterable[Any] = None, lists: bool = 
 
         #  The inference in Subset returns a list of tuples (discard prob, keep prob, idx)
         #  We now need to iterate over the subsets in the decreasing order of their joint probability
-        inferred: List[Tuple[float, float, int]] = model_store[label].predict_graphs([encoding])[0]
-        inferred = [(i[0], i[1], reverse_mapping[i[2]]) for i in inferred]
+        inferred: List[Tuple[float, float, int]] = model_store.predict_graphs((func_name, label), [encoding])[0]
+        inferred = [(i[0], i[1], i[2]) for i in inferred]
 
         def beam_search(items: List[Tuple[float, float, int]], width: int):
             beam: List[Tuple[float, List[int]]] = [(1.0, [])]
@@ -478,7 +488,7 @@ def OrderedSubsets(vals: Collection[Any], lengths: Iterable[Any] = None, lists: 
                    arg_name: str = None, identifier: str = None, **kwargs):
     label = 'orderedsubsets_' + arg_name + '_' + identifier
 
-    if mode == 'exhaustive' or (mode == 'inference' and label not in kwargs['model_store']):
+    if mode == 'exhaustive' or (mode == 'inference' and (kwargs['func'], label) not in kwargs['model_store']):
         if mode == 'inference':
             logger.warn("Did not find model for {}.{}".format(kwargs['func'], label), use_cache=True)
 
@@ -555,8 +565,10 @@ def OrderedSubsets(vals: Collection[Any], lengths: Iterable[Any] = None, lists: 
                     subset.append(val)
                     break
             else:
-                # So that didn't work out... There was no value in the domain that was equal to the target val.
-                # This can happen when random column names are generated. 
+                #  So that didn't work out... There was no value in the domain that was equal to the target val.
+                #  This can happen when random column names are generated. 
+                #  Thankfully we stuck to a convention that they be prefixed with "AUTOPANDAS_", so we can check
+                #  if that is the case and then recover accordingly
 
                 if isinstance(target_val, str) and target_val.startswith("AUTOPANDAS_"):
                     if len(randoms) > 0:
@@ -589,7 +601,8 @@ def OrderedSubsets(vals: Collection[Any], lengths: Iterable[Any] = None, lists: 
         return
 
     elif mode == 'inference':
-        model_store: Dict[str, RelGraphInterface] = kwargs['model_store']
+        model_store: ModelStore = kwargs['model_store']
+        func_name = kwargs['func']
         prob_store: Dict[str, float] = kwargs['prob_store']
         externals: Dict[str, Any] = kwargs['externals']
         beam_search_k = kwargs['beam_search_k']
@@ -611,10 +624,8 @@ def OrderedSubsets(vals: Collection[Any], lengths: Iterable[Any] = None, lists: 
         encoding['op_label'] = label
         encoding['raw_vals'] = vals
 
-        inferred: List[List[Tuple[float, int]]] = model_store[label].predict_graphs([encoding])[0]
-        for preds in inferred:
-            for i in range(len(preds)):
-                preds[i] = (preds[i][0], reverse_mapping[preds[i][1]])
+        inferred: List[List[Tuple[float, int]]] = model_store.predict_graphs((func_name, label), [encoding])[0]
+        inferred = [[(pred[0], reverse_mapping[pred[1]]) for pred in preds] for preds in inferred]
 
         inferred = inferred[:len(vals) + 1]
 
@@ -649,7 +660,7 @@ def Product(*domains: Any, spec: SearchSpec = None, depth: int = 1, mode: str = 
 
     label = 'product_' + arg_name + '_' + identifier
 
-    if mode == 'exhaustive' or (mode == 'inference' and label not in kwargs['model_store']):
+    if mode == 'exhaustive' or (mode == 'inference' and (kwargs['func'], label) not in kwargs['model_store']):
         if mode == 'inference':
             logger.warn("Did not find model for {}.{}".format(kwargs['func'], label), use_cache=True)
 

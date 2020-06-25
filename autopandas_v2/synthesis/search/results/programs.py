@@ -1,9 +1,21 @@
 import functools
 import operator
 from typing import Any, Dict, List
+import ast
+import astunparse
 
 from autopandas_v2.generators.base import BaseGenerator
 from autopandas_v2.synthesis.search.results.computers import ArgComputer
+
+
+def strip_representation(rep, non_default_kws):
+    try:
+        call = ast.parse(rep).body[0].value
+        call.keywords = [i for i in call.keywords if i.arg in non_default_kws]
+        return astunparse.unparse(call)
+
+    except:
+        return rep
 
 
 class FunctionCall:
@@ -16,7 +28,9 @@ class FunctionCall:
         self.arg_vals = arg_vals
         self.arg_annotations = arg_annotations
         self.computers: Dict[str, ArgComputer] = {k: ArgComputer(k, v, arg_annotations[k]) for k, v in arg_vals.items()}
-        self.representation: str = gen.representation.format(**{k: v.repr for k, v in self.computers.items()})
+        non_defaults = {k for k, v in self.computers.items() if not v.is_default}
+        rep = strip_representation(gen.representation, non_defaults)
+        self.representation: str = rep.format(**{k: v.repr for k, v in self.computers.items()})
 
     def __str__(self):
         return repr(self)

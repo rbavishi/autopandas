@@ -12,8 +12,10 @@ from autopandas_v2.generators.ml.traindata.dsl.values import NewInp
 from autopandas_v2.generators.trackers import OpTracker
 from autopandas_v2.iospecs import SearchSpec
 from autopandas_v2.ml.inference.interfaces import RelGraphInterface
+from autopandas_v2.ml.inference.model_stores import ModelStore
 from autopandas_v2.utils import logger
 from autopandas_v2.utils.exceptions import AutoPandasInversionFailedException
+from autopandas_v2.utils.types import DType
 
 
 class BaseGenerator:
@@ -26,6 +28,8 @@ class BaseGenerator:
         self.default_vals: Dict[str, Any] = None
         self.arity: int = None
         self.representation: str = None
+        self.inp_types: List[DType] = None
+        self.out_types: List[DType] = None
 
         self.init()
 
@@ -200,7 +204,7 @@ class BaseGenerator:
 
         return training_points
 
-    def infer(self, spec: SearchSpec, model_store: Dict[str, RelGraphInterface], depth: int = None, k: int = 5):
+    def infer(self, spec: SearchSpec, model_store: ModelStore, depth: int = None, k: int = 5):
         """
         This enumeration does a beam search over the argument combination space, using the probabilities
         returned by DSL operators. The search depth (k) should be chosen wisely
@@ -229,6 +233,7 @@ class BaseGenerator:
 
         #  Basically the arg_val and arg_annotation tuple along with the probability
         arg_candidates: List[Tuple[float, Dict[str, Any], Dict[str, Dict[str, Any]]]] = []
+        model_store.start_caching()
         while top > -1:
             if top == total:
                 arg_candidates.append((functools.reduce(operator.mul, prob_store.values(), 1.0),
@@ -260,14 +265,16 @@ class BaseGenerator:
                 iters[top] = None
                 top -= 1
 
+        model_store.stop_caching()
+
         # for model in model_store.values():
         #     model.close()
 
         arg_candidates = sorted(arg_candidates, key=lambda x: -x[0])
         for prob, arg_vals, arg_annotations in arg_candidates[:k]:
-            yield arg_vals, arg_annotations
+            yield arg_vals, arg_annotations, prob
 
-    def infer_lazy(self, spec: SearchSpec, model_store: Dict[str, RelGraphInterface], depth: int = None, k: int = 5):
+    def infer_lazy(self, spec: SearchSpec, model_store: ModelStore, depth: int = None, k: int = 5):
         """
         This enumeration uses neural-guided generators but does not do a beam-search.
         This is faster but may not necessarily yield the best-k argument combinations in the correct order

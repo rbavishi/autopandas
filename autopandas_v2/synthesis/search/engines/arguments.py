@@ -22,15 +22,18 @@ from typing import List, Any, Dict, Set
 from autopandas_v2.generators.base import BaseGenerator
 from autopandas_v2.iospecs import EngineSpec
 from autopandas_v2.ml.inference.interfaces import RelGraphInterface
+from autopandas_v2.ml.inference.model_stores import ModelStore
 from autopandas_v2.synthesis.search.results.programs import FunctionCall
 from autopandas_v2.synthesis.search.stats.collectors import StatsCollector
+from autopandas_v2.utils import logger
 from autopandas_v2.utils.checker import Checker
 from autopandas_v2.utils.cli import ArgNamespace
 from autopandas_v2.utils.hasher import Hasher
 
 
 class BaseArgEngine(ABC):
-    def __init__(self, func_sequence: List[BaseGenerator], cmd_args: ArgNamespace = None, stats: StatsCollector = None):
+    def __init__(self, func_sequence: List[BaseGenerator], cmd_args: ArgNamespace = None, stats: StatsCollector = None,
+                 **kwargs):
         self.func_sequence = func_sequence
         self.cmd_args = cmd_args
         self.stats = stats
@@ -114,8 +117,8 @@ class BaseArgEngine(ABC):
         """
         pass
 
-    def run(self, spec: EngineSpec):
-        yield from self.iter_specs(spec, depth=1, programs=None)
+    def run(self, spec: EngineSpec, depth: int = 1, programs: List[Set[FunctionCall]] = None):
+        yield from self.iter_specs(spec, depth=depth, programs=programs)
 
     def close(self):
         pass
@@ -205,21 +208,27 @@ class BeamSearchEngine(BaseArgEngine):
     """
 
     def __init__(self, func_sequence: List[BaseGenerator], model_path: str, k: int = 10000,
-                 cmd_args: ArgNamespace = None, stats: StatsCollector = None):
+                 cmd_args: ArgNamespace = None, stats: StatsCollector = None, max_depth: int = None,
+                 model_store: ModelStore = None):
         super().__init__(func_sequence, cmd_args, stats)
         self.model_path = model_path
         self.beam_search_k = k
+        self.get_probs = False
 
-        self.model_store: Dict[str, Dict[str, RelGraphInterface]] = collections.defaultdict(dict)
-        for func in self.func_sequence:
-            func_model_path = model_path + '/' + func.qual_name
+        if model_store is not None:
+            self.model_store = model_store
+        else:
+            logger.info("Loading Models", flush=True)
+            path_map: Dict[Any, str] = {}
+            for func in self.func_sequence:
+                func_model_path = model_path + '/' + func.qual_name
 
-            for dsl_op_model_path in glob.glob(func_model_path + '/*'):
-                if not os.path.exists(dsl_op_model_path + '/model_best.pickle'):
-                    continue
+                for dsl_op_model_path in map(os.path.dirname, glob.glob(func_model_path + '/*/model_best.pickle')):
+                    label = os.path.basename(dsl_op_model_path)
+                    path_map[(func.qual_name, label)] = dsl_op_model_path
 
-                label = os.path.basename(dsl_op_model_path)
-                self.model_store[func.qual_name][label] = RelGraphInterface.from_model_dir(dsl_op_model_path)
+            self.model_store: ModelStore = ModelStore(path_map)
+            logger.info("Loaded Models", flush=True)
 
     def iter_args(self, spec: EngineSpec, depth: int, current_programs: List[Set[FunctionCall]]):
         """
@@ -227,7 +236,7 @@ class BeamSearchEngine(BaseArgEngine):
         """
         func_name = self.func_sequence[depth - 1].qual_name
         yield from itertools.islice(self.func_sequence[depth - 1].infer(spec,
-                                                                        model_store=self.model_store[func_name],
+                                                                        model_store=self.model_store,
                                                                         depth=depth, k=self.beam_search_k),
                                     self.beam_search_k)
 
@@ -241,7 +250,7 @@ class BeamSearchEngine(BaseArgEngine):
         if programs is None:
             programs = [None] * len(self.func_sequence)
 
-        for arg_vals, arg_annotations in self.iter_args_wrapper(inp_spec, depth, programs):
+        for arg_vals, arg_annotations, prob in self.iter_args_wrapper(inp_spec, depth, programs):
             result = self.execute(func, arg_vals, arg_annotations)
             if self.stats is not None:
                 self.stats.num_cands_generated[depth] += 1
@@ -259,7 +268,11 @@ class BeamSearchEngine(BaseArgEngine):
                 if self.stats is not None:
                     self.stats.num_cands_propagated[depth] += 1
 
-                yield result, programs
+                if self.get_probs:
+                    yield result, programs, prob
+                else:
+                    yield result, programs
+
                 programs[depth - 1] = None
 
             else:
@@ -276,9 +289,7 @@ class BeamSearchEngine(BaseArgEngine):
                 inp_spec.depth = depth
 
     def close(self):
-        for model_store in self.model_store.values():
-            for model in model_store.values():
-                model.close()
+        self.model_store.close()
 
 
 class ResultCache:

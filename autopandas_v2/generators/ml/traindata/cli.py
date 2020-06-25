@@ -5,7 +5,7 @@ import pandas as pd
 from argparse import ArgumentParser
 
 from autopandas_v2.generators.ml.traindata.generation import ArgDataGenerator, RawDataGenerator, \
-    FunctionSeqDataGenerator, NextFunctionDataGenerator
+    FunctionSeqDataGenerator 
 from autopandas_v2.utils import logger
 from autopandas_v2.utils.cli import subcommand, ArgNamespace
 
@@ -105,29 +105,6 @@ def parse_args(parser: ArgumentParser):
         parser.add_argument("outfile", type=str,
                             help="Path to output file where the generated data is to be stored")
 
-    @subcommand(parser, cmd='next-func', help='Generate Training Data for Next Function Prediction',
-                dest='train_data_subcommand')
-    def cmd_training_data_generators(parser):
-        parser.add_argument("--debug", default=False, action="store_true",
-                            help="Debug-level logging")
-        parser.add_argument("--append", action="store_true", default=False,
-                            help="Append training-data to the existing dataset represented by outfile"
-                                 "instead of overwriting by default")
-
-        parser.add_argument("--processes", type=int, default=1,
-                            help="Number of processes to use")
-        parser.add_argument("--chunksize", type=int, default=100,
-                            help="Pebble Chunk Size. Only touch this if you understand the source")
-        parser.add_argument("--task-timeout", type=int, default=10,
-                            help="Timeout for a datapoint generation task (for multiprocessing). "
-                                 "Useful for avoiding enumeration-gone-wrong cases, where something "
-                                 "is taking a long time or is consuming too many resources")
-
-        parser.add_argument("raw_data_path", type=str,
-                            help="Path to pkl containing the raw I/O example data")
-        parser.add_argument("outfile", type=str,
-                            help="Path to output file where the generated data is to be stored")
-
 
 def run_raw_training_data_generation(cmd_args: ArgNamespace):
     with warnings.catch_warnings():
@@ -148,10 +125,6 @@ def run_func_seq_training_data_generation(cmd_args: ArgNamespace):
     FunctionSeqDataGenerator(cmd_args).generate()
 
 
-def run_next_func_training_data_generation(cmd_args: ArgNamespace):
-    NextFunctionDataGenerator(cmd_args).generate()
-
-
 def run(cmd_args: ArgNamespace):
     if cmd_args.train_data_subcommand == 'raw':
         run_raw_training_data_generation(cmd_args)
@@ -161,6 +134,3 @@ def run(cmd_args: ArgNamespace):
 
     elif cmd_args.train_data_subcommand == 'function-seq':
         run_func_seq_training_data_generation(cmd_args)
-
-    elif cmd_args.train_data_subcommand == 'next-func':
-        run_next_func_training_data_generation(cmd_args)

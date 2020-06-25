@@ -631,7 +631,8 @@ class BaseGGNN(ABC):
                                                 max_queue_size=50)
 
         preds = []
-        mapping = self.params['mapping']
+        orig_mapping = self.params['mapping']
+        mapping = {v: k for k, v in orig_mapping.items()}
         for step, batch_data in enumerate(batch_iterator):
             batch_data[self.placeholders['out_layer_dropout_keep_prob']] = 1.0
             fetch_list = [self.ops['preds'], self.ops['probs']]
