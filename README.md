@@ -134,6 +134,8 @@ autopandas_v2 generators training-data raw validation_raw_data.pkl --append --se
 autopandas_v2 generators training-data raw validation_raw_data.pkl --append --sequences pandas_mined_seqs.pkl --processes 32 --min-depth 3 --max-depth 3 --num-training-points 10000
 ```
 
+The raw data used in the artifact can be found [here](https://drive.google.com/drive/folders/149MD9NDzEjAOiVy9KU4ju6x8BxEOvO3W?usp=sharing).
+
 ### Creating Structured Data
 
 The raw data has to be converted into graphs for training. The basic command structure is as follows.
