@@ -14,5 +14,6 @@ setup(
     include_package_data=True,
     entry_points={'console_scripts': ['autopandas_v2=autopandas_v2.main:run_console']},
     zip_safe=False,
-    install_requires=['pebble', 'astor', 'astunparse', 'orderedset', 'pandas==0.23.4', 'tqdm', 'PyYAML']
+    install_requires=['pebble', 'astor', 'astunparse', 'orderedset', 'pandas==0.23.4', 'tqdm', 'PyYAML',
+                      'tensorflow-gpu==1.9.0']
 )
