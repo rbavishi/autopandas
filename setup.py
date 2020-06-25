@@ -19,7 +19,7 @@ setup(
         "Pebble==4.4.0",
         "numpy==1.17.3",
         "astor==0.8.0",
-        "tensorflow_gpu==1.9.0",
+        "tensorflow_gpu==1.15.2",
         "astunparse==1.6.2",
         "pandas==0.23.4",
         "tqdm==4.36.1",
