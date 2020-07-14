@@ -160,7 +160,7 @@ class GGNNSeqStaticRNN(BaseGGNNSeq):
             batch_graph_nodes_list = []
             node_offset = 0
 
-            while num_graphs < len(data) and node_offset + len(data[num_graphs]['init']) < self.params['batch_size']:
+            while num_graphs < len(data) and ((node_offset + len(data[num_graphs]['init']) < self.params['batch_size']) or num_graphs_in_batch == 0):
                 cur_graph = data[num_graphs]
                 num_nodes_in_graph = len(cur_graph['init'])
                 padded_features = np.pad(cur_graph['init'],
