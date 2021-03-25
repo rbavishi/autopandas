@@ -24,6 +24,6 @@ setup(
         "pandas==0.23.4",
         "tqdm==4.36.1",
         "python_dateutil==2.8.1",
-        "PyYAML==5.3.1",
+        "PyYAML==5.4",
     ],
 )
