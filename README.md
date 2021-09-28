@@ -125,7 +125,7 @@ intervention using `SIGINT` (`Ctrl-C`) is required.
 The `pandas_mined_seqs.pkl` can be obtained [here](https://drive.google.com/file/d/13r5uaZddvmtDtL29WaHtQtrA2R8qioBS/view?usp=sharing).
 
 ```bash
-autopandas_v2 generators training-data raw training_raw_data_depth1.pkl --sequences pandas_mined_seqs.pkl --processes 32 --min-depth 1 --max-depth 1 --num-training-points 1000000
+autopandas_v2 generators training-data raw training_raw_data.pkl --sequences pandas_mined_seqs.pkl --processes 32 --min-depth 1 --max-depth 1 --num-training-points 1000000
 autopandas_v2 generators training-data raw training_raw_data.pkl --append --sequences pandas_mined_seqs.pkl --processes 32 --min-depth 2 --max-depth 2 --num-training-points 1000000
 autopandas_v2 generators training-data raw training_raw_data.pkl --append --sequences pandas_mined_seqs.pkl --processes 32 --min-depth 3 --max-depth 3 --num-training-points 1000000
 
@@ -134,7 +134,7 @@ autopandas_v2 generators training-data raw validation_raw_data.pkl --append --se
 autopandas_v2 generators training-data raw validation_raw_data.pkl --append --sequences pandas_mined_seqs.pkl --processes 32 --min-depth 3 --max-depth 3 --num-training-points 10000
 ```
 
-The raw data used in the artifact can be found [here](https://drive.google.com/drive/folders/149MD9NDzEjAOiVy9KU4ju6x8BxEOvO3W?usp=sharing).
+The raw data used in the artifact can be found [here](https://drive.google.com/drive/folders/149MD9NDzEjAOiVy9KU4ju6x8BxEOvO3W?usp=sharing). Each file is of the form `<split_name>_depth<depth>_<set_no>.pkl` where `split_name` is one of `validation` and `training`, `<depth>` is the number of functions in the sequence, and `<set_no>` is one of `1` and `2`. The set number simply results from parallelization. 
 
 ### Creating Structured Data
 
